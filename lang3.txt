@@ -1,0 +1,120 @@
+# Types
+# builtins
+int
+char
+# arrays
+[]int
+# strings
+[]char
+#user defined types
+struct person {
+  name: []char
+  age: int
+  parent: person;
+}
+# user defined type literals
+person {name: "hello", age: 0, parent: null}
+
+# Variable definition
+var: int = 1
+var := 1      #Type inference (if time)
+
+# Assignment
+var = var + 1
+
+# Function calls 
+func arg1, arg2, arg3 
+arg1 + arg2
+
+# Conditionals
+if var == 1 {
+  print "var is 1"
+} elsif var == 2 {
+  print "var is 2"
+} else {
+  print "var is not 1 or 2"
+}
+
+# Conditionals (alternate forms)
+
+# ast->src conversion: use this form if a single conditional with a body of one expression is present
+print "var is 1" if var == 1
+
+# ast->src conversion: use this form if a conditonal is a negation
+unless var > 5 {
+  print ""
+}
+
+# ast->src conversion: use this form if a conditional chain with at least two equality checks on the same variable is present
+switch var {
+  1 -> {
+    print("var is 1")
+  }
+  2 -> {
+    print("var is 2")
+  }
+  else -> {
+    print("var is not 1 or 2")
+  }
+}
+
+# Function expressions
+(a: int, b: int) -> int {
+  return a + b
+}
+
+# Named functions
+fn sum(a: int, b: int) -> int {
+  return a + b
+}
+
+# functions (alternate form)
+#ast->src conversion: use these forms if single expression body is present
+# if we have type inference, specifying return type will be unnessesary
+(a: int, b: int) -> int => a + b
+
+fn sum(a: int, b: int) -> int => a + b
+
+# Loops (note: this would be converted to a range automatically)
+for i: int = 0, i < 5, i++ {
+  print(i)
+}
+
+# Loops alternate forms
+
+#ast->src conversion: use this form for a for loop with a starting assignment, less than check, and increment by one
+# this form could easily support type inference
+range i: int in 0..5 {
+
+}
+
+people: []person = [person {name: "p1", age: 1, parent: null}, person {name: "p2", age: 2, parent: null}]
+
+# foreach form (type inference could be easily supported):
+foreach p: person, index: int in people {
+  printnum index
+  print p.name
+}
+
+# the above loop would be matched to this form
+for index: int = 0, i < people.length, i++ {
+  p = people[i]
+
+  printnum index
+  print p.name
+}
+
+# potentially also match this form (inline array index)
+for index: int = 0, i < people.length, i++ {
+  printnum index
+  print people[i].name
+}
+
+# map espression
+names: [][]char = map elem: person, i: int in people => elem.name
+
+# many loops could be pattern matched to a map, but we should at least support this form:
+names: [][]char = []
+foreach elem: person, i: int in people {
+  names.push(elem.name)
+}
