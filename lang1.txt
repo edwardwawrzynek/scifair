@@ -1,6 +1,6 @@
 ; A language using s-expressions
 ; not lisp (very much incomptabile)
-
+( func arg1 arg2 arg3)
 ; Types
 ; builtins
 int
@@ -13,7 +13,7 @@ char
 (defstruct person (
   (name (array char))
   (age int)
-  (parent person)))
+  (parent (struct person))))
 ; user defined type literals
 (struct person (name "hello") (age 0) (parent null))
 
@@ -24,13 +24,13 @@ char
 (= var (+ var 1))
 
 ; Function calls
-(func arg1 arg2 arg3)
+
 (+ arg1 arg2)
 
 ; Conditionals
 (cond (== var 1) (print "var is 1")
       (== var 2) (print "var is 2")
-      (true) (print "var is not 1 or 2"))
+      true (print "var is not 1 or 2"))
 
 ; Functions expressions
 (lambda int ((a int) (b int)) 
