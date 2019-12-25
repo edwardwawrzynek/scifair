@@ -31,6 +31,9 @@ funcName
 	|	'^'
 	|	'~'
 	|	'!'
+	|	'.'
+	|	'++'
+	|	'--'
 	;
 
 funcCallExpr
@@ -42,7 +45,7 @@ structExpr
 	;
 
 arrayExpr
-	: '(' 'array' type=typeExpr (value=expr)* ')'
+	: '(' 'array' type=typeExpr '(' (value=expr)* ')' ')'
 	;
 
 literalExpr
@@ -95,8 +98,6 @@ expr
 	|	typeExpr
 	|	funcCallExpr
 	;
-
-
 
 BOOL: 	'true' | 'false';
 NULL: 	'null';
