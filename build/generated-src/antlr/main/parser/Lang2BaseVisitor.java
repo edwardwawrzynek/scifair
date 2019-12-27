@@ -1,4 +1,7 @@
 // Generated from parser/Lang2.g4 by ANTLR 4.7.2
+
+	package parser;
+
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**

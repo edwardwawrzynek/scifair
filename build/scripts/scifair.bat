@@ -79,7 +79,7 @@ set CMD_LINE_ARGS=%*
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\lib\scifair.jar;%APP_HOME%\lib\antlr4-4.7.2.jar;%APP_HOME%\lib\kotlin-stdlib-jdk8-1.3.31.jar;%APP_HOME%\lib\antlr4-runtime-4.7.2.jar;%APP_HOME%\lib\ST4-4.1.jar;%APP_HOME%\lib\antlr-runtime-3.5.2.jar;%APP_HOME%\lib\org.abego.treelayout.core-1.0.3.jar;%APP_HOME%\lib\javax.json-1.0.4.jar;%APP_HOME%\lib\icu4j-61.1.jar;%APP_HOME%\lib\kotlin-stdlib-jdk7-1.3.31.jar;%APP_HOME%\lib\kotlin-stdlib-1.3.31.jar;%APP_HOME%\lib\kotlin-stdlib-common-1.3.31.jar;%APP_HOME%\lib\annotations-13.0.jar
+set CLASSPATH=%APP_HOME%\lib\scifair.jar;%APP_HOME%\lib\antlr4-4.7.2.jar;%APP_HOME%\lib\kotlin-stdlib-jdk8-1.3.61.jar;%APP_HOME%\lib\antlr4-runtime-4.7.2.jar;%APP_HOME%\lib\ST4-4.1.jar;%APP_HOME%\lib\antlr-runtime-3.5.2.jar;%APP_HOME%\lib\org.abego.treelayout.core-1.0.3.jar;%APP_HOME%\lib\javax.json-1.0.4.jar;%APP_HOME%\lib\icu4j-61.1.jar;%APP_HOME%\lib\kotlin-stdlib-jdk7-1.3.61.jar;%APP_HOME%\lib\kotlin-stdlib-1.3.61.jar;%APP_HOME%\lib\kotlin-stdlib-common-1.3.61.jar;%APP_HOME%\lib\annotations-13.0.jar
 
 @rem Execute scifair
 "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %SCIFAIR_OPTS%  -classpath "%CLASSPATH%" compiler.Main %CMD_LINE_ARGS%
