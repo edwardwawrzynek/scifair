@@ -36,85 +36,90 @@ class ASTNodeLocation(val lineNum: Int, val linePos: Int, val fileName: String) 
         }
 
     }
-
-    companion object {
-        fun fromToken(tok: Token): ASTNodeLocation {
-            return ASTNodeLocation(tok.line, tok.charPositionInLine, getActiveFilename())
-        }
-    }
 }
 
+fun ASTLoc(tok: Token): ASTNodeLocation = ASTNodeLocation(tok.line, tok.charPositionInLine, getActiveFilename())
 
 /** Root AST Node class **/
-open class ASTNode ()
+/** The loc field represents the spot in the program from which the ast was generated
+ * it is used for error reporting and is not an inherently necessary part of the ast
+ */
+open class ASTNode(val loc: ASTNodeLocation?)
 
 /** A program (array of ast nodes) **/
-class ASTProgram(val nodes: List<ASTNode>): ASTNode()
+class ASTProgram(loc: ASTNodeLocation?, val nodes: List<ASTNode>): ASTNode(loc)
 
 /** Comment (including blank lines) **/
-class ASTComment(val comment: String): ASTNode()
+class ASTComment(loc: ASTNodeLocation?, val comment: String): ASTNode(loc)
 
 /** Literal nodes **/
-open class ASTLiteral(): ASTNode()
+open class ASTLiteral(loc: ASTNodeLocation?): ASTNode(loc) {
+    open val value get(): Any? = null
+}
 
-class ASTStringLiteral(val value: String): ASTLiteral()
+class ASTStringLiteral(loc: ASTNodeLocation?, override val value: String): ASTLiteral(loc)
 
-class ASTIntLiteral(val value: Long): ASTLiteral()
+class ASTIntLiteral(loc: ASTNodeLocation?, override val value: Long): ASTLiteral(loc)
 
-class ASTFloatLiteral(val value: Double): ASTLiteral()
+class ASTFloatLiteral(loc: ASTNodeLocation?, override val value: Double): ASTLiteral(loc)
 
-class ASTBoolLiteral(val value: Boolean): ASTLiteral()
+class ASTBoolLiteral(loc: ASTNodeLocation?, override val value: Boolean): ASTLiteral(loc)
 
-class ASTNullLiteral(): ASTLiteral()
+class ASTNullLiteral(loc: ASTNodeLocation?): ASTLiteral(loc)
 
-class ASTArrayLiteral(val type: ASTType, val value: List<ASTNode>): ASTLiteral()
+class ASTArrayLiteral(loc: ASTNodeLocation?, val type: ASTType, override val value: List<ASTNode>): ASTLiteral(loc)
 
 data class ASTStructField(val name: String, val value: ASTNode)
 
-class ASTStructLiteral(val type: ASTStructType, val value: List<ASTStructField>): ASTLiteral()
+class ASTStructLiteral(loc: ASTNodeLocation?, val type: ASTStructType, override val value: List<ASTStructField>): ASTLiteral(loc)
 
 /** AST Types **/
-open class ASTType(): ASTNode()
+open class ASTType(loc: ASTNodeLocation?): ASTNode(loc)
 
-class ASTStringType(): ASTType()
+class ASTStringType(loc: ASTNodeLocation?): ASTType(loc)
 
-class ASTIntType(): ASTType()
+class ASTIntType(loc: ASTNodeLocation?): ASTType(loc)
 
-class ASTFloatType(): ASTType()
+class ASTFloatType(loc: ASTNodeLocation?): ASTType(loc)
 
-class ASTBoolType(): ASTType()
+class ASTBoolType(loc: ASTNodeLocation?): ASTType(loc)
 
-class ASTArrayType(val type: ASTType): ASTType()
+class ASTArrayType(loc: ASTNodeLocation?, val type: ASTType): ASTType(loc)
 
 /** used for annotating type on nulls */
-class ASTAnyStructType(): ASTType()
+class ASTAnyStructType(loc: ASTNodeLocation?): ASTType(loc)
 
-class ASTStructType(val typeName: String): ASTType()
+class ASTStructType(loc: ASTNodeLocation?, val typeName: String): ASTType(loc)
 
-class ASTFunctionType(val returnType: ASTType, val argTypes: List<ASTType>): ASTType()
+class ASTFunctionType(loc: ASTNodeLocation?, val returnType: ASTType, val argTypes: List<ASTType>): ASTType(loc)
+
+/** struct declaration */
+class ASTStructFieldType(val name: String, val type: ASTType)
+
+class ASTStructDecl(loc: ASTNodeLocation?, val type: List<ASTStructFieldType>, val name: String): ASTNode(loc)
 
 /** Variable expression */
-class AstVarExpr(val name: String): ASTNode()
+class ASTVarExpr(loc: ASTNodeLocation?, val name: String): ASTNode(loc)
 
 /** Function Binding **/
-class ASTFuncBinding(val argNames: List<String>, val argTypes: List<ASTType>, val body: List<ASTNode>): ASTNode()
+class ASTFuncBinding(loc: ASTNodeLocation?, val argNames: List<String>, val type: ASTFunctionType, val body: List<ASTNode>): ASTNode(loc)
 
 /** Function Application **/
-class ASTFuncApplication(val expr: ASTNode, val args: List<ASTNode>): ASTNode()
+class ASTFuncApplication(loc: ASTNodeLocation?, val expr: ASTNode, val args: List<ASTNode>): ASTNode(loc)
 
 /** Assignment **/
-class ASTAssignment(val left: ASTNode, val right: ASTNode): ASTNode()
+class ASTAssignment(loc: ASTNodeLocation?, val left: ASTNode, val right: ASTNode): ASTNode(loc)
 
 /** Variable declaration **/
-class ASTVarDecl(val name: String, val type: ASTType?, val initialValue: ASTNode?): ASTNode() {
+class ASTVarDecl(loc: ASTNodeLocation?, val name: String, val type: ASTType?, val initialValue: ASTNode): ASTNode(loc) {
     /** for type inference */
     fun withResolvedType(type: ASTType): ASTVarDecl {
-        return ASTVarDecl(name, type, initialValue)
+        return ASTVarDecl(loc, name, type, initialValue)
     }
 }
 
 /** Conditional chain */
-class ASTConditional(val conditions: List<ASTNode>, val bodies: List<List<ASTNode>>): ASTNode()
+class ASTConditional(loc: ASTNodeLocation?, val conditions: List<ASTNode>, val bodies: List<List<ASTNode>>): ASTNode(loc)
 
 /** For loop */
-class ASTForLoop(val initial: ASTNode, val condition: ASTNode, val end: ASTNode, val body: List<ASTNode>): ASTNode()
+class ASTForLoop(loc: ASTNodeLocation?, val initial: ASTNode, val condition: ASTNode, val end: ASTNode, val body: List<ASTNode>): ASTNode(loc)

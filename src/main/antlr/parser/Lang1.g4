@@ -15,7 +15,6 @@ funcName
 	|	'*'
 	| 	'/'
 	|	'%'
-	|	'='
 	|	'>>'
 	|	'<<'
 	|	'>='
@@ -34,14 +33,15 @@ funcName
 	|	'.'
 	|	'++'
 	|	'--'
+	|	'[]'
 	;
 
 funcCallExpr
-	:	'(' func=funcName (args=expr)* ')'
+	:	'(' func=expr (args=expr)* ')'
 	;
 
 structExpr
-	:	'(' 'struct' name=ID ( '(' field=ID value=expr ')' )* ')'
+	:	'(' 'struct' name=ID '(' ( '(' field=ID value=expr ')' )* ')' ')'
 	;
 
 arrayExpr
@@ -88,6 +88,22 @@ typeExpr
 	|	type=ID							#plainType
 	;
 
+varExpr
+	:	funcName
+	;
+
+condEntry
+	: 	'(' cond=expr '(' (body=expr)* ')' ')'
+	;
+
+condExpr
+	:	'(' 'cond' (condEntry)* ')'
+	;
+
+assignExpr
+	:	'(' '=' left=expr right=expr ')'
+	;
+
 expr
 	: 	funcDeclExpr
 	| 	lambdaExpr
@@ -95,8 +111,10 @@ expr
 	|	forExpr
 	|	literalExpr
 	| 	structDeclExpr
-	|	typeExpr
+	|	condExpr
+	|	assignExpr
 	|	funcCallExpr
+	|	varExpr
 	;
 
 BOOL: 	'true' | 'false';

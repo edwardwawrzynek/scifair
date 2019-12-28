@@ -149,6 +149,30 @@ public interface Lang1Visitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPlainType(Lang1Parser.PlainTypeContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link Lang1Parser#varExpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVarExpr(Lang1Parser.VarExprContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link Lang1Parser#condEntry}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCondEntry(Lang1Parser.CondEntryContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link Lang1Parser#condExpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCondExpr(Lang1Parser.CondExprContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link Lang1Parser#assignExpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAssignExpr(Lang1Parser.AssignExprContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link Lang1Parser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

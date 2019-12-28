@@ -1,0 +1,25 @@
+(defstruct person (
+  (name string)
+  (age int)
+  (parent (struct person))))
+(struct person ((name "hello") (age 0) (parent null)))
+(setq (var (array int)) (array int (0 1 2 3)))
+(setq (var int) 1)
+(= var (+ var 1))
+(+ arg1 arg2)
+(func arg1 arg2 arg3)
+(cond
+  ((== var 1) (
+    (print "var is 1")
+    (= a (+ a 1))))
+  ((== var 2) ((print "var is 2")))
+  (true ((print "var is not 1 or 2"))))
+(lambda int ((a int) (b int))
+  (+ a b))
+(defun sum int ((a int) (b int))
+  (+ a b))
+(defun getName string ((person (struct person)))
+  (return (. person name)))
+(for (setq (i int) 0) (< i 5) (= i (+ i 1)) (
+  (print i)
+  (print (+ i 1))))

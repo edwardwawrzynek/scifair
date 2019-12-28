@@ -1,21 +1,14 @@
 ; A language using s-expressions
 ; not lisp (very much incomptabile)
-( func arg1 arg2 arg3)
-; Types
-; builtins
-int
-char
-; arrays
-(array int)
-; strings
-(array char)
+
 ; user defined types
 (defstruct person (
-  (name (array char))
+  (name string)
   (age int)
   (parent (struct person))))
 ; user defined type literals
-(struct person (name "hello") (age 0) (parent null))
+(struct person ((name "hello") (age 0) (parent null)))
+(setq (var (array int)) (array int (0 1 2 3)))
 
 ; Variable definition
 (setq (var int) 1)
@@ -26,21 +19,29 @@ char
 ; Function calls
 
 (+ arg1 arg2)
+(func arg1 arg2 arg3)
 
 ; Conditionals
-(cond (== var 1) (print "var is 1")
-      (== var 2) (print "var is 2")
-      true (print "var is not 1 or 2"))
+(cond
+  ((== var 1) (
+    (print "var is 1")
+    (= a (+ a 1))))
+  ((== var 2) ((print "var is 2")))
+  (true ((print "var is not 1 or 2"))))
 
 ; Functions expressions
-(lambda int ((a int) (b int)) 
+(lambda int ((a int) (b int))
   (+ a b))
 
 ; Named functions (no special syntax)
 (defun sum int ((a int) (b int))
   (+ a b))
 
+(defun getName string ((person (struct person)))
+  (return ( . person name)))
+
 ; Loops
 (for (setq (i int) 0) (< i 5) (= i (+ i 1)) (
   (print i)
+  (print (+ i 1))
 ))
