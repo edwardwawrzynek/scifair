@@ -50,7 +50,7 @@ open class ASTNode(val loc: ASTNodeLocation?)
 class ASTProgram(loc: ASTNodeLocation?, val nodes: List<ASTNode>): ASTNode(loc)
 
 /** Comment (including blank lines) **/
-class ASTComment(loc: ASTNodeLocation?, val comment: String): ASTNode(loc)
+class ASTComment(loc: ASTNodeLocation?, val comment: String, val isBlankLine: Boolean = false): ASTNode(loc)
 
 /** Literal nodes **/
 open class ASTLiteral(loc: ASTNodeLocation?): ASTNode(loc) {

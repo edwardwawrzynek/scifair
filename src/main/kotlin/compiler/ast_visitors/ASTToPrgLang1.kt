@@ -12,6 +12,10 @@ class ASTToPrgLang1(val emit: Emitter): ASTBaseVisitor<Unit>(Unit) {
         emit.emit(msg, indnt)
     }
 
+    override fun visitASTComment(node: ASTComment) {
+        if(!node.isBlankLine) emit(";${node.comment}")
+    }
+
     override fun visitASTProgram(node: ASTProgram) {
         for(n in node.nodes) {
             visitASTNode(n)

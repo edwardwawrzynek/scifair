@@ -38,10 +38,9 @@
   (+ a b))
 
 (defun getName string ((person (struct person)))
-  (return ( . person name)))
+  (return (. person name)))
 
 ; Loops
 (for (setq (i int) 0) (< i 5) (= i (+ i 1)) (
   (print i)
-  (print (+ i 1))
-))
+  (print (+ i 1))))

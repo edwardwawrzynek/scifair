@@ -115,6 +115,16 @@ expr
 	|	assignExpr
 	|	funcCallExpr
 	|	varExpr
+	|	lineComment
+	|	blankLine
+	;
+
+lineComment
+	:	LINE_COMMENT
+	;
+
+blankLine
+	:	BLANK_LINE
 	;
 
 BOOL: 	'true' | 'false';
@@ -126,5 +136,6 @@ ID  :   [a-zA-Z_]+[a-zA-Z_0-9]*;
 STR :   '"' (~'"')* '"';
 CHR :   '\'' '\\'?(~'\'') '\'';
 
-WS  :  [ \t\n\r]+ -> channel(HIDDEN);
-LINE_COMMENT: ';' ~[\n]* -> skip;
+WS  :  ('\n'|[ \t])[ \t]* -> channel(HIDDEN);
+LINE_COMMENT: ';' ~[\n]*;
+BLANK_LINE: '\n''\n';

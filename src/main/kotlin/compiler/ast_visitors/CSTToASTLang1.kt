@@ -19,6 +19,14 @@ class CSTToASTLang1: Lang1BaseVisitor<ASTNode>() {
         )
     }
 
+    override fun visitLineComment(ctx: Lang1Parser.LineCommentContext): ASTNode {
+        return ASTComment(ASTLoc(ctx.start), ctx.text.slice(1 until ctx.text.length))
+    }
+
+    override fun visitBlankLine(ctx: Lang1Parser.BlankLineContext): ASTNode {
+        return ASTComment(ASTLoc(ctx.start), "", true)
+    }
+
     /** type expressions */
     fun visitTypeExpr(ctx: Lang1Parser.TypeExprContext): ASTType = when(ctx) {
         is Lang1Parser.StructTypeExprContext -> ASTStructType(ASTLoc(ctx.start), ctx.name.text)
