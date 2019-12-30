@@ -39,9 +39,9 @@ object Main {
         val ast = CSTToASTLang2().visitProgram(tree)
         pp(ast)
 
-        val emitter = Emitter(FileWriter("lang1.out"))
+        val emitter = Emitter(FileWriter("lang2.out"))
 
-        val programVisit = ASTToPrgLang1(emitter)
+        val programVisit = ASTToPrgLang2(emitter)
         programVisit.visitASTNode(ast)
 
         emitter.close()

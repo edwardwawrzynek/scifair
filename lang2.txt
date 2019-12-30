@@ -6,7 +6,7 @@ struct person {
 	string name;
 	int age;
 	struct person parent;
-}
+};
 // user defined type literals
 (struct person) { .name = "hello", .age = 0, .parent = null };
 int[] var = (int[]) {0, 1, 2, 3};
@@ -15,12 +15,12 @@ int[] var = (int[]) {0, 1, 2, 3};
 int var = 1;
 
 // Assignment
-var += 1
+var += 1;
 
 // Function calls
 
-arg1 + arg2
-func(arg1, arg2, arg3)
+arg1 + arg2;
+func(arg1, arg2, arg3);
 
 // Conditionals
 if (var == 1) {
@@ -35,7 +35,7 @@ if (var == 1) {
 // Function expressions
 int (int a, int b) {
 	a + b;
-}
+};
 
 // Named functions (no special syntax)
 int sum (int a, int b) {
