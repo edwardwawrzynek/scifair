@@ -4,8 +4,6 @@ import compiler.ast.*
 import compiler.compilerError
 import parser.*
 
-import com.tylerthrailkill.helpers.prettyprint.pp
-
 /**
  * Turn the context specific parse tree (CST) produced by antlr into an Abstract Syntax Tree (AST) for language 2
  */
@@ -29,6 +27,8 @@ class CSTToASTLang2: Lang2BaseVisitor<ASTNode>() {
         if(ctx.ifStatement() !== null) return visitIfStatement(ctx.ifStatement())
         if(ctx.funcDeclExpr() !== null) return visitFuncDeclExpr(ctx.funcDeclExpr())
         if(ctx.forExpr() !== null) return visitForExpr(ctx.forExpr())
+        if(ctx.blankLine() !== null) return ASTComment(ASTLoc(ctx.start), "", true)
+        if(ctx.lineComment() !== null) return ASTComment(ASTLoc(ctx.start), ctx.lineComment().text.substring(2))
 
         compilerError("No such statement type: ${ctx.javaClass}", ASTLoc(ctx.start))
     }
