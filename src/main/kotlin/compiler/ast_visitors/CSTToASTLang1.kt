@@ -4,8 +4,6 @@ import compiler.ast.*
 import compiler.compilerError
 import parser.*
 
-import com.tylerthrailkill.helpers.prettyprint.pp
-
 /**
  * Turn the context specific parse tree (CST) produced by antlr into an Abstract Syntax Tree (AST) for language 1
  */

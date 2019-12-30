@@ -6,21 +6,24 @@
 
 //user defined types
 struct person {
-  char[] name;
+  string name;
   int age;
-  person parent;
+  struct person parent;
 };
 //user defined type literal
 (struct person) {.name = "hello", .age = 0, .parent = null};
+
+(int[]) {0, 2, 4, 6};
 
 // Variable definition
 int var = 1;
 
 // Assignment
 var = var + 1;
+var >>= 1 + 2 * 3;
 
 // Function calls
-func(arg1, arg2, arg3);
+func(arg1, arg2 + 2, arg3);
 arg1 + arg2;
 
 // Conditionals

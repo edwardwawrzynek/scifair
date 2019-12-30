@@ -11,7 +11,7 @@ import com.tylerthrailkill.helpers.prettyprint.pp
 
 /** get currently active file **/
 fun getActiveFilename(): String {
-    return "lang1.txt"
+    return "lang2.txt"
 }
 
 /** error printing **/
@@ -28,15 +28,15 @@ fun compilerError(msg: String, loc: ASTNodeLocation? = null): Nothing {
 
 object Main {
     @JvmStatic fun main(args: Array<String>) {
-        val fileName = "lang1.txt"
+        val fileName = "lang2.txt"
         val fileInput = BufferedReader(FileReader(fileName))
         val input = CharStreams.fromReader(fileInput)
-        val lexer = Lang1Lexer(input)
+        val lexer = Lang2Lexer(input)
         val tokens = CommonTokenStream(lexer)
-        val parser = Lang1Parser(tokens)
+        val parser = Lang2Parser(tokens)
         val tree = parser.program()
 
-        val ast = CSTToASTLang1().visitProgram(tree)
+        val ast = CSTToASTLang2().visitProgram(tree)
         pp(ast)
 
         val emitter = Emitter(FileWriter("lang1.out"))

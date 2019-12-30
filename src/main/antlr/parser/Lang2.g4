@@ -5,7 +5,7 @@ grammar Lang2;
 }
 
 program
-	: statment* EOF
+	: statement* EOF
 	;
 
 expr
@@ -14,10 +14,8 @@ expr
 
     |   varName=expr '[' sub=expr ']'               #arraySubExpr
     |   varName=expr op=('++'|'--')                 #postfixExpr
-    |	func=ID '(' (args=expr ',')* (args=expr)? ')'	#funcExpr
+    |	func=expr '(' (args=expr ',')* (args=expr)? ')'	#funcExpr
 
-    |   op=('++'|'--') varName=expr                 #prefixExpr
-    |   op=('+'|'-') varName=expr                   #prefixExpr
     |   op=('!'|'~') varName=expr                   #prefixExpr
 
     |   left=expr op=('*'|'/'|'%') right=expr       #infixExpr
@@ -73,15 +71,15 @@ varDeclExpr
 	;
 
 lambdaExpr
-	: 	ret_type=typeExpr '(' (args=varDecl ',')* (args=varDecl)? ')' '{' (body=statment)* '}'
+	: 	ret_type=typeExpr '(' (args=varDecl ',')* (args=varDecl)? ')' '{' (body=statement)* '}'
 	;
 
 funcDeclExpr
-	: 	ret_type=typeExpr name=ID '(' (args=varDecl ',')* (args=varDecl)? ')' '{' (body=statment)* '}'
+	: 	ret_type=typeExpr name=ID '(' (args=varDecl ',')* (args=varDecl)? ')' '{' (body=statement)* '}'
 	;
 
 forExpr
-	:	'for' '(' initial=statment cond=expr ';' end=expr ')' '{' (body=statment)* '}'
+	:	'for' '(' initial=statement cond=expr ';' end=expr ')' '{' (body=statement)* '}'
 	;
 
 typeExpr
@@ -90,21 +88,25 @@ typeExpr
 	|	type=ID							#plainType
 	;
 
-ifStatment
-	:	'if' '(' cond=expr ')' '{' (body=statment)* '}' ('else' 'if' '(' cond=expr ')' '{' (body=statment)* '}')* ('else' '{' (body=statment)* '}')?
+ifStatmentBody
+	:	statement+
 	;
 
-returnStatment
+ifStatement
+	:	'if' '(' cond=expr ')' '{' (body=ifStatmentBody) '}' ('else' 'if' '(' cond=expr ')' '{' (body=ifStatmentBody) '}')* ('else' '{' (body=ifStatmentBody) '}')?
+	;
+
+returnStatement
 	:	'return' value=expr
 	;
 
-statment
+statement
 	: 	funcDeclExpr
 	|	varDeclExpr ';'
 	|	forExpr
 	| 	structDeclExpr ';'
-	| 	ifStatment
-	|	returnStatment ';'
+	| 	ifStatement
+	|	returnStatement ';'
 	|	expr ';'
 	;
 
