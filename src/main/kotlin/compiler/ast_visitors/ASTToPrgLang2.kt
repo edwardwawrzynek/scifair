@@ -3,6 +3,33 @@ package compiler.ast_visitors
 import compiler.ast.*
 import compiler.compilerError
 
+/* Function names that receive special handling in output */
+private val specialFunctionNames = listOf("return", ".", "[]", "++", "--", "!", "~", "*", "/", "%", "+", "-", "<<", ">>", "<", "<=", ">=", "==", "!=", "&", "|", "^", "&&", "||")
+
+private val prefixOps = listOf("!", "~")
+private val postFixOps = listOf("++", "--")
+
+/* operators that have compound equivalents */
+private val compoundEquivOps = listOf("+", "-", "*", "/", "%", "<<", ">>", "&", "^", "|")
+
+/* order of operations for special functions */
+private val funcOrderOps = listOf(
+        listOf("."),
+        listOf("[]"),
+        listOf("++", "--"),
+        listOf("!", "~"),
+        listOf("*", "/", "%"),
+        listOf("+", "-"),
+        listOf("<<", ">>"),
+        listOf("<", "<=", ">", ">="),
+        listOf("==", "!="),
+        listOf("&"),
+        listOf("|"),
+        listOf("^"),
+        listOf("&&"),
+        listOf("||")
+)
+
 /** Generate a source program from a abstract syntax tree for lang2
  * There is a bit of pattern matching that has to be performed on the ast, but most of the transformations are straightforward */
 class ASTToPrgLang2(val emit: Emitter): ASTBaseVisitor<Unit>(Unit) {
@@ -96,6 +123,7 @@ class ASTToPrgLang2(val emit: Emitter): ASTBaseVisitor<Unit>(Unit) {
         for(expr in func.body) {
             emit("\n")
             visitASTNode(expr)
+            if(needsSemicolon(expr)) emit(";")
         }
         indent--
         emit("\n}")
@@ -110,22 +138,94 @@ class ASTToPrgLang2(val emit: Emitter): ASTBaseVisitor<Unit>(Unit) {
             visitFuncArgsAndBody(node.initialValue as ASTFuncBinding)
             emit("")
         } else {
-            emit("(setq (${node.name} ")
             visitASTType(node.type)
-            emit(") ")
+            emit(" ${node.name} = ")
             visitASTNode(node.initialValue)
-            emit(")")
         }
     }
 
-    override fun visitASTFuncApplication(node: ASTFuncApplication) {
-        emit("(")
-        visitASTNode(node.expr)
-        for(arg in node.args) {
-            emit(" ")
-            visitASTNode(arg)
+    /* find order of operation index of op (lower num -> higher precedence */
+    private fun findOpPrecedence(op: String): Int? {
+        for(i in funcOrderOps.indices) {
+            if(op in funcOrderOps[i]) return i
         }
-        emit(")")
+
+        return null
+    }
+
+    override fun visitASTFuncApplication(node: ASTFuncApplication) {
+        /* handle infix, postfix, prefix, return, and array operators */
+        if(node.expr is ASTVarExpr && node.expr.name in specialFunctionNames) {
+            val op = node.expr.name
+            val opPrec = findOpPrecedence(op)
+            if(op == "return") {
+                emit("return ")
+                if(node.args.size != 1) compilerError("return only accepts one parameter", node.loc)
+                visitASTNode(node.args[0])
+            } else if(op == "[]") {
+                if(opPrec === null) compilerError("can't find precedence for operator $op", node.loc)
+                if(node.args.size != 2) compilerError("[] only accepts one parameter", node.loc)
+                if(node.args[0] is ASTFuncApplication && (node.args[0] as ASTFuncApplication).expr is ASTVarExpr) {
+                    val argOp = (node.args[0] as ASTFuncApplication).expr as ASTVarExpr
+                    val prec = findOpPrecedence(argOp.name)
+                    if(prec != null && prec > opPrec) {
+                        emit("(")
+                        visitASTNode(node.args[0])
+                        emit(")")
+                    } else {
+                        visitASTNode(node.args[0])
+                    }
+                } else {
+                    visitASTNode(node.args[0])
+                }
+                emit("[")
+                visitASTNode(node.args[1])
+                emit("]")
+            } else {
+                if(opPrec === null) compilerError("can't find precedence for operator $op", node.loc)
+                if(op in prefixOps || op in postFixOps){
+                    if(node.args.size != 1) compilerError("function ${op} takes one arg", node.loc)
+                }
+                else {
+                    if(node.args.size != 2) compilerError("function ${op} takes two args", node.loc)
+                }
+                if(op in prefixOps) emit(op)
+
+                for(arg_i in node.args.indices) {
+                    var arg = node.args[arg_i]
+
+                    /* determine if parenthesis are needed */
+                    if(arg is ASTFuncApplication && arg.expr is ASTVarExpr) {
+                        val argPrec = findOpPrecedence((arg.expr as ASTVarExpr).name)
+                        if(argPrec !== null && argPrec > opPrec) {
+                            emit("(")
+                            visitASTNode(arg)
+                            emit(")")
+                        } else {
+                            visitASTNode(arg)
+                        }
+                    } else {
+                        visitASTNode(arg)
+                    }
+
+                    if(!(op in prefixOps || op in postFixOps) && arg_i < node.args.size - 1) {
+                        if(op == ".") emit(op)
+                        else emit(" $op ")
+                    }
+                }
+
+                if(op in postFixOps) emit(op)
+            }
+        } else {
+            visitASTNode(node.expr)
+            emit("(")
+            for(arg_i in node.args.indices) {
+                val arg = node.args[arg_i]
+                visitASTNode(arg)
+                if(arg_i < node.args.size - 1) emit(", ")
+            }
+            emit(")")
+        }
     }
 
     override fun visitASTVarExpr(node: ASTVarExpr) {
@@ -148,12 +248,23 @@ class ASTToPrgLang2(val emit: Emitter): ASTBaseVisitor<Unit>(Unit) {
         }
     }
 
+    private fun compareASTNode(a: ASTNode, b: ASTNode): Boolean {
+        if(a.javaClass != b.javaClass) return false
+        if(a.javaClass.kotlin.members != b.javaClass.kotlin.members) return false
+        return true
+    }
+
     override fun visitASTAssignment(node: ASTAssignment) {
-        emit("(= ")
-        visitASTNode(node.left)
-        emit(" ")
-        visitASTNode(node.right)
-        emit(")")
+        /* handle compound assignments */
+        if(node.right is ASTFuncApplication && node.right.expr is ASTVarExpr && node.right.expr.name in compoundEquivOps && compareASTNode(node.left, node.right.args[0])) {
+            visitASTNode(node.left)
+            emit(" ${node.right.expr.name}= ")
+            visitASTNode(node.right.args[1])
+        } else {
+            visitASTNode(node.left)
+            emit(" = ")
+            visitASTNode(node.right)
+        }
     }
 
     override fun visitASTConditional(node: ASTConditional) {
@@ -174,6 +285,7 @@ class ASTToPrgLang2(val emit: Emitter): ASTBaseVisitor<Unit>(Unit) {
             for(expr in body) {
                 emit("\n")
                 visitASTNode(expr)
+                if(needsSemicolon(expr)) emit(";")
             }
             indent--
             emit("\n}")
@@ -183,6 +295,7 @@ class ASTToPrgLang2(val emit: Emitter): ASTBaseVisitor<Unit>(Unit) {
 
     override fun visitASTFuncBinding(node: ASTFuncBinding) {
         visitASTType(node.type.returnType)
+        emit(" ")
         visitFuncArgsAndBody(node)
     }
 
@@ -198,6 +311,7 @@ class ASTToPrgLang2(val emit: Emitter): ASTBaseVisitor<Unit>(Unit) {
         for(expr in node.body) {
             emit("\n")
             visitASTNode(expr)
+            if(needsSemicolon(expr)) emit(";")
         }
         indent--
         emit("\n}")
