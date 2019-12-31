@@ -1,19 +1,13 @@
-# Types
-# builtins
-int
-char
-# arrays
-[]int
-# strings
-[]char
+
 #user defined types
 struct person {
   name: []char
   age: int
-  parent: person;
+  parent: struct person
 }
 # user defined type literals
-person {name: "hello", age: 0, parent: null}
+struct person {name: "hello", age: 0, parent: null}
+var: []int = []int {0, 1, 2, 3}
 
 # Variable definition
 var: int = 1
@@ -23,7 +17,7 @@ var := 1      #Type inference (if time)
 var = var + 1
 
 # Function calls 
-func arg1, arg2, arg3 
+func arg1, arg2, arg3
 arg1 + arg2
 
 # Conditionals
