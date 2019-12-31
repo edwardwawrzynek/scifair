@@ -1,6 +1,6 @@
 package compiler
 
-import compiler.ast.ASTNodeLocation
+import compiler.ast.*
 import compiler.ast_visitors.*
 import org.antlr.v4.runtime.*
 import kotlin.system.exitProcess
@@ -8,11 +8,6 @@ import java.io.*
 import parser.*
 
 import com.tylerthrailkill.helpers.prettyprint.pp
-
-/** get currently active file **/
-fun getActiveFilename(): String {
-    return "lang2.txt"
-}
 
 /** error printing **/
 fun compilerError(msg: String, loc: ASTNodeLocation? = null): Nothing {
@@ -27,8 +22,24 @@ fun compilerError(msg: String, loc: ASTNodeLocation? = null): Nothing {
 }
 
 object Main {
-    @JvmStatic fun main(args: Array<String>) {
-        val fileName = "lang2.txt"
+
+    /* TODO: read off command line **/
+    var srcFilename = ""
+
+    fun lang1toAST(fileName: String): ASTNode {
+        srcFilename = fileName
+        val fileInput = BufferedReader(FileReader(fileName))
+        val input = CharStreams.fromReader(fileInput)
+        val lexer = Lang1Lexer(input)
+        val tokens = CommonTokenStream(lexer)
+        val parser = Lang1Parser(tokens)
+        val tree = parser.program()
+
+        return CSTToASTLang1().visitProgram(tree)
+    }
+
+    fun lang2toAST(fileName: String): ASTNode {
+        srcFilename = fileName
         val fileInput = BufferedReader(FileReader(fileName))
         val input = CharStreams.fromReader(fileInput)
         val lexer = Lang2Lexer(input)
@@ -36,15 +47,34 @@ object Main {
         val parser = Lang2Parser(tokens)
         val tree = parser.program()
 
-        val ast = CSTToASTLang2().visitProgram(tree)
-        pp(ast)
+        return CSTToASTLang2().visitProgram(tree)
+    }
 
-        val emitter = Emitter(FileWriter("lang2.out"))
+    fun astToLang1(ast: ASTNode, fileName: String) {
+        val emitter = Emitter(FileWriter(fileName))
+
+        val programVisit = ASTToPrgLang1(emitter)
+        programVisit.visitASTNode(ast)
+        emitter.close()
+    }
+
+    fun astToLang2(ast: ASTNode, fileName: String) {
+        val emitter = Emitter(FileWriter(fileName))
 
         val programVisit = ASTToPrgLang2(emitter)
         programVisit.visitASTNode(ast)
-
         emitter.close()
+    }
 
+    /** get currently active file */
+    fun getActiveFilename(): String {
+        return srcFilename
+    }
+
+    @JvmStatic fun main(args: Array<String>) {
+        val ast = lang2toAST("lang2.txt")
+        astToLang1(ast, "lang1.out")
+        val ast2 = lang1toAST("lang1.out")
+        astToLang2(ast2, "lang2.out")
     }
 }

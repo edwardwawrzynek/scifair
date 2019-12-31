@@ -13,8 +13,10 @@
 ; Variable definition
 (setq (var int) 1)
 
+(= a (+ a 1))
+
 ; Assignment
-(= var (+ var 1))
+(= var (* (! (+ var 1)) (++ 2)))
 
 ; Function calls
 
@@ -31,11 +33,11 @@
 
 ; Function expressions
 (lambda int ((a int) (b int))
-  (+ a b))
+  (return (+ a b)))
 
 ; Named functions (no special syntax)
 (defun sum int ((a int) (b int))
-  (+ a b))
+  (return (+ a b)))
 
 (defun getName string ((person (struct person)))
   (return (. person name)))

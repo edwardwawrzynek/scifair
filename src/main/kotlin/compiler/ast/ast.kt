@@ -1,6 +1,6 @@
 package compiler.ast
 
-import compiler.getActiveFilename
+import compiler.Main
 import java.io.*
 import org.antlr.v4.runtime.*
 
@@ -38,7 +38,7 @@ class ASTNodeLocation(val lineNum: Int, val linePos: Int, val fileName: String) 
     }
 }
 
-fun ASTLoc(tok: Token): ASTNodeLocation = ASTNodeLocation(tok.line, tok.charPositionInLine, getActiveFilename())
+fun ASTLoc(tok: Token): ASTNodeLocation = ASTNodeLocation(tok.line, tok.charPositionInLine, Main.getActiveFilename())
 
 /** Root AST Node class **/
 /** The loc field represents the spot in the program from which the ast was generated
