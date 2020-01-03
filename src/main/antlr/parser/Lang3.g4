@@ -1,7 +1,7 @@
 grammar Lang3;
 
 @header {
-	//package parser;
+	package parser;
 }
 
 @parser::members {
@@ -87,7 +87,7 @@ structExpr
 	;
 
 arrayExpr
-	: '[' ']' type=typeExpr '{' (value=expr ',')* (value=expr)? '}'
+	: '[' ']' type=typeExpr '[' (value=expr ',')* (value=expr)? ']'
 	;
 
 literalExpr
@@ -114,10 +114,12 @@ varDeclExpr
 
 lambdaExpr
 	: '(' (args=varDecl ',')* (args=varDecl)? ')' '->' ret_type=typeExpr  '{' (body=statement)* '}'
+	| '(' (args=varDecl ',')* (args=varDecl)? ')' '->' ret_type=typeExpr  '=>' (body=statement)
 	;
 
 funcDeclExpr
-	: 'fn' name=ID '(' (args=varDecl ',')* (args=varDecl)? ')' '->' ret_type=typeExpr  '{' (body=statement)* '}'
+	: 	'fn' name=ID '(' (args=varDecl ',')* (args=varDecl)? ')' '->' ret_type=typeExpr '{' (body=statement)* '}'
+	|	'fn' name=ID '(' (args=varDecl ',')* (args=varDecl)? ')' '->' ret_type=typeExpr '=>' body=statement
 	;
 
 forInitialExpr
@@ -134,63 +136,59 @@ typeExpr
 	|	type=ID							#plainType
 	;
 
-ifStatmentBody
+ifStatementBody
 	:	statement+
 	;
 
 ifStatement
-	:	'if' cond=expr '{' (body=ifStatmentBody) '}' ('elsif' cond=expr '{' (body=ifStatmentBody) '}')* ('else' '{' (body=ifStatmentBody) '}')?
+	:	'if' cond=expr '{' (body=ifStatementBody) '}' ('elsif' cond=expr '{' (body=ifStatementBody) '}')* ('else' '{' (body=ifStatementBody) '}')?
 	;
 
 inlineIfStatement
-	: 	body=inlineIfBodyStatment 'if' cond=expr
+	: 	body=inlineIfBodyStatement 'if' cond=expr
 	;
 
-unlessIfStatment
-	: 	'unless' cond=expr '{' (body=ifStatmentBody) '}'
+unlessIfStatement
+	: 	'unless' cond=expr '{' (body=ifStatementBody) '}'
+	;
+
+switchCase
+	:	(cond=expr|'else') '->' '{' (body=statement)* '}'
+	;
+
+switchStatement
+	:	'switch' value=expr '{' (conds=switchCase)* '}'
 	;
 
 returnStatement
 	:	'return' value=expr
 	;
 
-// Inline if's have a limited set of statments which they can hold
-inlineIfBodyStatment
-	: 	funcDeclExpr
-	|	varDeclExpr
-	|	forExpr
-	| 	structDeclExpr
-	| 	ifStatement
-	| 	unlessIfStatment
-	|	returnStatement
-	|	expr
-	| 	lineComment
-	;
-
-statmentInline
-	: 	funcDeclExpr
-	|	varDeclExpr
-	|	forExpr
-	| 	structDeclExpr
-	| 	ifStatement
-	| 	inlineIfStatement
-	| 	unlessIfStatment
-	|	returnStatement
-	|	expr
-	| 	lineComment
+// Inline if's have a limited set of statements which they can hold
+inlineIfBodyStatement
+	: 	funcDeclExpr		#inlineIfFuncDeclStatement
+	|	varDeclExpr			#inlineIfVarDeclStatement
+	|	forExpr				#inlineIfForStatement
+	| 	structDeclExpr		#inlineIfStructDeclStatement
+	| 	ifStatement			#inlineIfIfStatement
+	|	switchStatement		#inlineIfSwitchStatement
+	| 	unlessIfStatement	#inlineIfUnlessIfStatement
+	|	returnStatement		#inlineIfReturnStatement
+	|	expr				#inlineIfExprStatement
 	;
 
 statement
-	: 	funcDeclExpr
-	|	varDeclExpr eos
-	|	forExpr
-	| 	structDeclExpr eos
-	| 	ifStatement
-	| 	inlineIfStatement eos
-	| 	unlessIfStatment
-	|	returnStatement eos
-	|	expr eos
-	| 	lineComment
+	: 	funcDeclExpr				#statementFuncDeclStatement
+	|	varDeclExpr eos				#statementVarDeclStatement
+	|	forExpr						#statementForStatement
+	| 	structDeclExpr eos			#statementStructDeclStatement
+	| 	ifStatement					#statementIfStatement
+	| 	inlineIfStatement eos		#statementInlineIfStatement
+	| 	unlessIfStatement			#statementUnlessIfStatement
+	|	switchStatement				#statementSwitchStatement
+	|	returnStatement eos			#statementReturnStatement
+	|	expr eos					#statementExprStatement
+	| 	lineComment					#statementLineComment
 	;
 
 eos

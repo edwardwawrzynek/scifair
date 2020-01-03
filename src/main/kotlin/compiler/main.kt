@@ -50,6 +50,18 @@ object Main {
         return CSTToASTLang2().visitProgram(tree)
     }
 
+    fun lang3toAST(fileName: String): ASTNode {
+        srcFilename = fileName
+        val fileInput = BufferedReader(FileReader(fileName))
+        val input = CharStreams.fromReader(fileInput)
+        val lexer = Lang3Lexer(input)
+        val tokens = CommonTokenStream(lexer)
+        val parser = Lang3Parser(tokens)
+        val tree = parser.program()
+
+        return CSTToASTLang3().visitProgram(tree)
+    }
+
     fun astToLang1(ast: ASTNode, fileName: String) {
         val emitter = Emitter(FileWriter(fileName))
 
@@ -72,9 +84,8 @@ object Main {
     }
 
     @JvmStatic fun main(args: Array<String>) {
-        val ast = lang2toAST("lang2.txt")
-        astToLang1(ast, "lang1.out")
-        val ast2 = lang1toAST("lang1.out")
-        astToLang2(ast2, "lang2.out")
+        val ast = lang3toAST("lang3.txt")
+        pp(ast)
+        astToLang2(ast, "lang3.out")
     }
 }

@@ -35,7 +35,7 @@ class CSTToASTLang2: Lang2BaseVisitor<ASTNode>() {
 
     override fun visitIfStatement(ctx: Lang2Parser.IfStatementContext): ASTNode {
         var conds = ctx.expr().map {c -> visitExpr(c)}
-        val bodies = ctx.ifStatmentBody().map {b -> b.statement().map {s -> visitStatement(s)}}
+        val bodies = ctx.ifStatementBody().map {b -> b.statement().map {s -> visitStatement(s)}}
         if(bodies.size != conds.size) {
             /* check for else clause and insert true expression to compensate if needed */
             if(bodies.size - 1 == conds.size) conds = conds + ASTBoolLiteral(ASTLoc(ctx.start), true)

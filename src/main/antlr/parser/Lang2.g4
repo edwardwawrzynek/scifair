@@ -88,12 +88,12 @@ typeExpr
 	|	type=ID							#plainType
 	;
 
-ifStatmentBody
+ifStatementBody
 	:	statement+
 	;
 
 ifStatement
-	:	'if' '(' cond=expr ')' '{' (body=ifStatmentBody) '}' ('else' 'if' '(' cond=expr ')' '{' (body=ifStatmentBody) '}')* ('else' '{' (body=ifStatmentBody) '}')?
+	:	'if' '(' cond=expr ')' '{' (body=ifStatementBody) '}' ('else' 'if' '(' cond=expr ')' '{' (body=ifStatementBody) '}')* ('else' '{' (body=ifStatementBody) '}')?
 	;
 
 returnStatement

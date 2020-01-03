@@ -44,7 +44,7 @@ class ASTToPrgLang2(val emit: Emitter): ASTBaseVisitor<Unit>(Unit) {
         if(!node.isBlankLine) emit("//${node.comment}")
     }
 
-    /* if a ASTNode needs a semicolon after it (assuming it is a statment) */
+    /* if a ASTNode needs a semicolon after it (assuming it is a statement) */
     private fun needsSemicolon(node: ASTNode) = when(node) {
         is ASTVarDecl -> {
             /* function declarations don't need a semicolon */
