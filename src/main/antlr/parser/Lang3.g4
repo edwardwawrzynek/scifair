@@ -55,8 +55,7 @@ expr
 
     |   varName=expr '[' sub=expr ']'               #arraySubExpr
     |   varName=expr op=('++'|'--')                 #postfixExpr
-    |	func=expr (args=expr ',')* (args=expr) 		#funcExpr
-    |	func=expr '(' ')'							#noArgsFuncExpr
+    |	func=expr '(' (args=expr ',')* (args=expr) ')'		#funcExpr
 
     |   op=('!'|'~') varName=expr                   #prefixExpr
 
@@ -145,7 +144,7 @@ ifStatement
 	;
 
 inlineIfStatement
-	: 	body=inlineIfBodyStatement 'if' cond=expr
+	: 	body=inlineIfBodyStatement type=('if'|'unless') cond=expr
 	;
 
 unlessIfStatement

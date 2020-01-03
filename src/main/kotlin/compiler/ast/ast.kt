@@ -36,6 +36,10 @@ class ASTNodeLocation(val lineNum: Int, val linePos: Int, val fileName: String) 
         }
 
     }
+
+    override fun equals(other: Any?): Boolean {
+        return other is ASTNodeLocation
+    }
 }
 
 fun ASTLoc(tok: Token): ASTNodeLocation = ASTNodeLocation(tok.line, tok.charPositionInLine, Main.getActiveFilename())

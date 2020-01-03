@@ -16,26 +16,27 @@ var: int = 1
 var = var + 1
 
 # Function calls 
-func arg1, arg2, arg3
+func(arg1, arg2, arg3)
 arg1 + arg2
 
 # Conditionals
 if var == 1 {
-  print "var is 1"
+  print("var is 1")
 } elsif var == 2 {
-  print "var is 2"
+  print("var is 2")
 } else {
-  print "var is not 1 or 2"
+  print("var is not 1 or 2")
 }
 
 # Conditionals (alternate forms)
 
 # ast->src conversion: use this form if a single conditional with a body of one expression is present
-print "var is 1" if var == 1
+print("var is 1") if var == 1
 
 # ast->src conversion: use this form if a conditonal is a negation
 unless var > 5 {
-  print ""
+  print("var <= 5")
+  print("cool")
 }
 
 # ast->src conversion: use this form if a conditional chain with at least two equality checks on the same variable is present
@@ -53,11 +54,13 @@ switch var {
 
 # Function expressions
 (a: int, b: int) -> int {
+  print("test func")
   return a + b
 }
 
 # Named functions
 fn sum(a: int, b: int) -> int {
+  print("test func")
   return a + b
 }
 

@@ -78,6 +78,14 @@ object Main {
         emitter.close()
     }
 
+    fun astToLang3(ast: ASTNode, fileName: String) {
+        val emitter = Emitter(FileWriter(fileName))
+
+        val programVisit = ASTToPrgLang3(emitter)
+        programVisit.visitASTNode(ast)
+        emitter.close()
+    }
+
     /** get currently active file */
     fun getActiveFilename(): String {
         return srcFilename
@@ -86,6 +94,6 @@ object Main {
     @JvmStatic fun main(args: Array<String>) {
         val ast = lang3toAST("lang3.txt")
         pp(ast)
-        astToLang2(ast, "lang3.out")
+        astToLang3(ast, "lang3.out")
     }
 }

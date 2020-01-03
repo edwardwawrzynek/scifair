@@ -79,9 +79,16 @@ class CSTToASTLang3: Lang3BaseVisitor<ASTNode>() {
     }
 
     override fun visitInlineIfStatement(ctx: Lang3Parser.InlineIfStatementContext): ASTNode {
+        val isUnless = ctx.type.text == "unless"
         return ASTConditional(
                 ASTLoc(ctx.start),
-                listOf(visitExpr(ctx.cond)),
+                listOf(
+                        if(isUnless) ASTFuncApplication(
+                                ASTLoc(ctx.start),
+                                ASTVarExpr(ASTLoc(ctx.start), "!"),
+                                listOf(visitExpr(ctx.cond))
+                        )
+                        else visitExpr(ctx.cond)),
                 listOf(listOf(visitInlineIfBodyStatement(ctx.body)))
         )
     }

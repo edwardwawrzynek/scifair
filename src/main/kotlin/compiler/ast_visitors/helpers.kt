@@ -4,6 +4,35 @@ import compiler.ast.*
 import compiler.compilerError
 import java.io.*
 
+import com.cedarsoftware.util.DeepEquals.*
+
+/* Function names that receive special handling in output */
+val specialFunctionNames = listOf("return", ".", "[]", "++", "--", "!", "~", "*", "/", "%", "+", "-", "<<", ">>", "<", "<=", ">", ">=", "==", "!=", "&", "|", "^", "&&", "||")
+
+val prefixOps = listOf("!", "~")
+val postFixOps = listOf("++", "--")
+
+/* operators that have compound equivalents */
+val compoundEquivOps = listOf("+", "-", "*", "/", "%", "<<", ">>", "&", "^", "|")
+
+/* order of operations for special functions */
+val funcOrderOps = listOf(
+        listOf("."),
+        listOf("[]"),
+        listOf("++", "--"),
+        listOf("!", "~"),
+        listOf("*", "/", "%"),
+        listOf("+", "-"),
+        listOf("<<", ">>"),
+        listOf("<", "<=", ">", ">="),
+        listOf("==", "!="),
+        listOf("&"),
+        listOf("|"),
+        listOf("^"),
+        listOf("&&"),
+        listOf("||")
+)
+
 /** Convert an string type name to an astnode type **/
 fun stringTypeToASTType(type: String, loc: ASTNodeLocation): ASTType = when(type) {
     "int" -> ASTIntType(loc)
@@ -49,4 +78,8 @@ class Emitter(val file: FileWriter) {
             }
         }
     }
+}
+
+fun compareASTNode(a: ASTNode, b: ASTNode): Boolean {
+    return deepEquals(a, b)
 }
