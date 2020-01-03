@@ -5,7 +5,7 @@ struct person {
   parent: struct person
 }
 # user defined type literals
-struct person {name: "hello", age: 0, parent: null}
+a: []struct person = struct person {name: "hello", age: 0, parent: null}
 var: []int = []int [0, 1, 2, 3]
 # Variable definition
 var: int = 1

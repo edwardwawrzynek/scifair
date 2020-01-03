@@ -22,7 +22,6 @@ class ASTToPrgLang3(val emit: Emitter): ASTBaseVisitor<Unit>(Unit) {
             visitASTNode(n)
             emit("\n")
         }
-        return defaultValue
     }
 
     override fun visitASTSTructDecl(node: ASTStructDecl) {

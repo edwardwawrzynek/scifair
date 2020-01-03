@@ -1,55 +1,94 @@
-// A language using s-expressions
-// not lisp (very much incomptabile)
-
-// user defined type
+//user defined types
 struct person {
   string name;
   int age;
   struct person parent;
 };
 // user defined type literals
-(struct person) { .name = "hello", .age = 0, .parent = null };
+struct person[] a = (struct person) { .name = "hello", .age = 0, .parent = null };
 int[] var = (int[]) {0, 1, 2, 3};
-
 // Variable definition
 int var = 1;
-
-a += 1;
-
 // Assignment
-var = !(var + 1) * 2++;
-
-// Function calls
-
-arg1 + arg2;
+var += 1;
+// Function calls 
 func(arg1, arg2, arg3);
-
+arg1 + arg2;
 // Conditionals
 if (var == 1) {
   print("var is 1");
-  a += 1;
 } else if (var == 2) {
   print("var is 2");
 } else {
   print("var is not 1 or 2");
 }
-
+// Conditionals (alternate forms)
+// ast->src conversion: use this form if a single conditional with a body of one expression is present
+if (var == 1) {
+  print("var is 1");
+}
+// ast->src conversion: use this form if a conditonal is a negation
+if (!(var > 5)) {
+  print("var <= 5");
+  print("cool");
+}
+// ast->src conversion: use this form if a conditional chain with at least two equality checks on the same variable is present
+if (var == 1) {
+  print("var is 1");
+} else if (var == 2) {
+  print("var is 2");
+} else {
+  print("var is not 1 or 2");
+}
 // Function expressions
+int (int a, int b) {
+  print("test func");
+  return a + b;
+};
+// Named functions
+int sum (int a, int b) {
+  print("test func");
+  return a + b;
+}
+// functions (alternate form)
+//ast->src conversion: use these forms if single expression body is present
+// if we have type inference, specifying return type will be unnessesary
 int (int a, int b) {
   return a + b;
 };
-
-// Named functions (no special syntax)
 int sum (int a, int b) {
   return a + b;
 }
-
-string getName (struct person person) {
-  return person.name;
-}
-
-// Loops
-for (int i = 0; i < 5; i += 1) {
+// Loops (note: this would be converted to a range automatically)
+for (int i = 0; i < 5; i++) {
   print(i);
-  print(i + 1);
 }
+// Loops alternate forms
+//ast->src conversion: use this form for a for loop with a starting assignment, less than check, and increment by one
+// this form could easily support type inference
+//range i: int in 0..5 {
+//}
+struct person[] people = (struct person[]) {(struct person) { .name = "p1", .age = 1, .parent = null }, (struct person) { .name = "p2", .age = 2, .parent = null }};
+// foreach form (type inference could be easily supported):
+//foreach p: person, index: int in people {
+//  printnum index
+//  print p.name
+//}
+// the above loop would be matched to this form
+//for index: int = 0, i < people.length, i++ {
+//  p = people[i]
+//  printnum index
+//  print p.name
+//}
+// potentially also match this form (inline array index)
+//for index: int = 0, i < people.length, i++ {
+//  printnum index
+//  print people[i].name
+//}
+// map espression
+//names: []string = map elem: person, i: int in people => elem.name
+// many loops could be pattern matched to a map, but we should at least support this form:
+//names: []string = []
+//foreach elem: person, i: int in people {
+//  names.push(elem.name)
+//}

@@ -93,7 +93,15 @@ object Main {
 
     @JvmStatic fun main(args: Array<String>) {
         val ast = lang3toAST("lang3.txt")
-        pp(ast)
-        astToLang3(ast, "lang3.out")
+        astToLang2(ast, "lang2.out")
+        val ast2 = lang2toAST("lang2.out")
+        astToLang1(ast2, "lang1.out")
+        val ast3 = lang1toAST("lang1.out")
+        astToLang3(ast3, "lang3.out")
+
+        val emit = Emitter(FileWriter("out.js"))
+        val backend = JSBackend(emit)
+        backend.visitASTNode(ast3)
+        emit.close()
     }
 }
