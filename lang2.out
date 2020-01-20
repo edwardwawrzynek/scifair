@@ -9,15 +9,8 @@ struct person a = (struct person) { .age = 0, .name = "hello", .parent = (struct
 int[] variable = (int[]) {0, 1, 2, 3};
 int[][] nested = (int[][]) {(int[]) {0, 1}, (int[]) {3, 4}};
 // variable definition
-int variable = 1;
-// Assignment
-variable += 1;
-int test = variable;
-!nested[2][variable];
-variable++;
 // Function calls
 print("hello, world");
-arg1 + arg2;
 // Conditionals
 if (variable == 1) {
   print("variable is 1");
@@ -60,7 +53,7 @@ int sum (int a, int b) {
 int (int a, int b) {
   return a + b;
 };
-int sum (int a, int b) {
+int sum_inline (int a, int b) {
   return a + b;
 }
 // Loops (note: this would be converted to a range automatically)

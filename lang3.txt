@@ -9,18 +9,10 @@ a: struct person = struct person {age: 0, name: "hello", parent: struct person {
 variable: []int = []int [0, 1, 2, 3]
 nested: [][]int = [][]int [[]int [0, 1], []int [3, 4]]
 # variable definition
-variable: int = 1
-# Assignment
-variable += 1
-test: int = variable
-
-!nested[2][variable]
-variable++
 
 # Function calls
 print("hello, world")
 
-arg1 + arg2
 # Conditionals
 switch variable {
   1 -> {
@@ -67,7 +59,7 @@ fn sum (a: int, b: int) -> int {
 #ast->src conversion: use these forms if single expression body is present
 # if we have type inference, specifying return type will be unnessesary
 (a: int, b: int) -> int => return a + b
-fn sum (a: int, b: int) -> int => return a + b
+fn sum_inline (a: int, b: int) -> int => return a + b
 # Loops (note: this would be converted to a range automatically)
 for i: int = 0, i < 5, i++ {
   print(i)

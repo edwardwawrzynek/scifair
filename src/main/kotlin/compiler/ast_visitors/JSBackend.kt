@@ -207,11 +207,18 @@ class JSBackend(val emit: Emitter): ASTBaseVisitor<ASTType?>(null) {
 
     /** visit a function expression */
     override fun visitASTFuncBinding(node: ASTFuncBinding): ASTType? {
+        pushSymbolTable()
         emit("((")
-        node.argNames.forEach {arg -> emit("${arg}, ")}
+        var i = 0
+        node.argNames.forEach {
+            arg ->
+            emit("${arg}, ")
+            /* add argument entry to symbol table */
+            getSymbolTable().addSymbol(arg, Symbol(node.type.argTypes[i]))
+            i++
+        }
         emit(") => {\n")
 
-        pushSymbolTable()
 
         node.body.forEach { stmnt ->
             visitASTNode(stmnt)
@@ -269,6 +276,16 @@ class JSBackend(val emit: Emitter): ASTBaseVisitor<ASTType?>(null) {
                     emit(")")
                     if(func in postFixOps)
                         emit(func)
+                } else {
+                    if(node.args.size != 2) compilerError("$func operator takes two arguments", node.loc)
+                    emit("(")
+                    val type1 = visitASTNode(node.args[0])
+                    emit(") $func (")
+                    val type2 = visitASTNode(node.args[1])
+                    emit(")")
+
+                    if(!(type1!!.hasOp(func))) compilerError("$func operator not defined on type '${type1}'")
+                    if(type1 != type2) compilerError("arguments to $func operator must be the same type, but they are of types '${type1}' and '${type2}'")
                 }
             }
         } else {

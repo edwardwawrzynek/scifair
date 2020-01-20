@@ -8,15 +8,8 @@
 (setq (variable (array int)) (array int (0 1 2 3)))
 (setq (nested (array (array int))) (array (array int) ((array int (0 1)) (array int (3 4)))))
 ; variable definition
-(setq (variable int) 1)
-; Assignment
-(= variable (+ variable 1))
-(setq (test int) variable)
-(! ([] ([] nested 2) variable))
-(++ variable)
 ; Function calls
 (print "hello, world")
-(+ arg1 arg2)
 ; Conditionals
 (cond
   ((== variable 1) ((print "variable is 1")))
@@ -49,7 +42,7 @@
 ; if we have type inference, specifying return type will be unnessesary
 (lambda int ((a int) (b int))
   (return (+ a b)))
-(defun sum int ((a int) (b int))
+(defun sum_inline int ((a int) (b int))
   (return (+ a b)))
 ; Loops (note: this would be converted to a range automatically)
 (for (setq (i int) 0) (< i 5) (++ i) (
