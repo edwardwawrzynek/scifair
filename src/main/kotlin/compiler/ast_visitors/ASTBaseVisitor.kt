@@ -6,7 +6,7 @@ import compiler.ast.*
 
 open class ASTBaseVisitor<T>(val defaultValue: T) {
     open fun visitASTNode(node: ASTNode): T {
-        when(node) {
+        return when(node) {
             is ASTProgram -> visitASTProgram(node)
             is ASTComment -> visitASTComment(node)
             is ASTLiteral -> visitASTLiteral(node)
@@ -19,8 +19,8 @@ open class ASTBaseVisitor<T>(val defaultValue: T) {
             is ASTConditional -> visitASTConditional(node)
             is ASTForLoop -> visitASTForLoop(node)
             is ASTStructDecl -> visitASTSTructDecl(node)
+            else -> defaultValue
         }
-        return defaultValue
     }
 
     open fun visitASTProgram(node: ASTProgram): T {
@@ -33,7 +33,7 @@ open class ASTBaseVisitor<T>(val defaultValue: T) {
     open fun visitASTComment(node: ASTComment): T = defaultValue
 
     open fun visitASTLiteral(node: ASTLiteral): T {
-        when(node) {
+        return when(node) {
             is ASTStringLiteral -> visitASTStringLiteral(node)
             is ASTIntLiteral -> visitASTIntLiteral(node)
             is ASTFloatLiteral -> visitASTFloatLiteral(node)
@@ -41,9 +41,8 @@ open class ASTBaseVisitor<T>(val defaultValue: T) {
             is ASTNullLiteral -> visitASTNullLiteral(node)
             is ASTArrayLiteral -> visitASTArrayLiteral(node)
             is ASTStructLiteral -> visitASTStructLiteral(node)
+            else -> defaultValue
         }
-
-        return defaultValue
     }
 
     open fun visitASTStringLiteral(node: ASTStringLiteral): T = defaultValue
@@ -55,7 +54,7 @@ open class ASTBaseVisitor<T>(val defaultValue: T) {
     open fun visitASTStructLiteral(node: ASTStructLiteral): T = defaultValue
 
     open fun visitASTType(node: ASTType): T {
-        when(node) {
+        return when(node) {
             is ASTStringType -> visitASTStringType(node)
             is ASTIntType -> visitASTIntType(node)
             is ASTFloatType -> visitASTFloatType(node)
@@ -63,9 +62,8 @@ open class ASTBaseVisitor<T>(val defaultValue: T) {
             is ASTArrayType -> visitASTArrayType(node)
             is ASTAnyStructType -> visitASTAnyStructType(node)
             is ASTStructType -> visitASTStructType(node)
+            else -> defaultValue
         }
-
-        return defaultValue
     }
 
     open fun visitASTStringType(node: ASTStringType): T = defaultValue

@@ -63,7 +63,7 @@ object Main {
     }
 
     fun astToLang1(ast: ASTNode, fileName: String) {
-        val emitter = Emitter(FileWriter(fileName))
+        val emitter = FileEmitter(FileWriter(fileName))
 
         val programVisit = ASTToPrgLang1(emitter)
         programVisit.visitASTNode(ast)
@@ -71,7 +71,7 @@ object Main {
     }
 
     fun astToLang2(ast: ASTNode, fileName: String) {
-        val emitter = Emitter(FileWriter(fileName))
+        val emitter = FileEmitter(FileWriter(fileName))
 
         val programVisit = ASTToPrgLang2(emitter)
         programVisit.visitASTNode(ast)
@@ -79,7 +79,7 @@ object Main {
     }
 
     fun astToLang3(ast: ASTNode, fileName: String) {
-        val emitter = Emitter(FileWriter(fileName))
+        val emitter = FileEmitter(FileWriter(fileName))
 
         val programVisit = ASTToPrgLang3(emitter)
         programVisit.visitASTNode(ast)
@@ -99,7 +99,7 @@ object Main {
         val ast3 = lang1toAST("lang1.out")
         astToLang3(ast3, "lang3.out")
 
-        val emit = Emitter(FileWriter("out.js"))
+        val emit = FileEmitter(FileWriter("out.js"))
         val backend = JSBackend(emit)
         backend.visitASTNode(ast3)
         emit.close()

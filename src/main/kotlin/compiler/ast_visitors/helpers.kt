@@ -47,13 +47,18 @@ const val indentSpaces = true
 const val indentSpacesSize = 2
 
 /** class that handles directing output for ast -> program converters */
-class Emitter(val file: FileWriter) {
+interface Emitter {
+    fun emit(msg: String, indent: Int)
+    fun close()
+}
+
+open class FileEmitter(val file: FileWriter): Emitter {
     /* Emit a string
      * indent handling - only print an indent if previously printed character was a newline
      */
 
     var lastChar = '\n'
-    fun emit(msg: String, indent: Int) {
+    override fun emit(msg: String, indent: Int) {
         for(c in msg) {
             if(lastChar == '\n') emitIndent(indent)
             file.write(c.toString())
@@ -61,7 +66,7 @@ class Emitter(val file: FileWriter) {
         }
     }
 
-    fun close() {
+    override fun close() {
         file.close()
     }
 
@@ -77,6 +82,23 @@ class Emitter(val file: FileWriter) {
                 file.write("\t")
             }
         }
+    }
+}
+
+class TestEmitter(): Emitter {
+    var value = ""
+
+    var lastChar = '\n'
+    override fun emit(msg: String, indent: Int) {
+        for(c in msg) {
+            if(lastChar == '\n') value += '\t'
+            value += c
+            lastChar = c
+        }
+    }
+
+    override fun close() {
+
     }
 }
 

@@ -5,45 +5,45 @@ struct person {
   parent: struct person
 }
 # user defined type literals
-a: []struct person = struct person {name: "hello", age: 0, parent: null}
-var: []int = []int [0, 1, 2, 3]
-# Variable definition
-var: int = 1
+a: []struct person = struct person {age: 0, name: "hello", parent: struct person {age: 1, name: "test", parent: null}}
+variable: []int = []int [0, 1, 2, 3]
+# variable definition
+variable: int = 1
 # Assignment
-var += 1
+variable += 1
 # Function calls 
 func(arg1, arg2, arg3)
 arg1 + arg2
 # Conditionals
-switch var {
+switch variable {
   1 -> {
-    print("var is 1")
+    print("variable is 1")
   }
   2 -> {
-    print("var is 2")
+    print("variable is 2")
   }
   else -> {
-    print("var is not 1 or 2")
+    print("variable is not 1 or 2")
   }
 }
 # Conditionals (alternate forms)
 # ast->src conversion: use this form if a single conditional with a body of one expression is present
-print("var is 1") if var == 1
+print("variable is 1") if variable == 1
 # ast->src conversion: use this form if a conditonal is a negation
-unless var > 5 {
-  print("var <= 5")
+unless variable > 5 {
+  print("variable <= 5")
   print("cool")
 }
 # ast->src conversion: use this form if a conditional chain with at least two equality checks on the same variable is present
-switch var {
+switch variable {
   1 -> {
-    print("var is 1")
+    print("variable is 1")
   }
   2 -> {
-    print("var is 2")
+    print("variable is 2")
   }
   else -> {
-    print("var is not 1 or 2")
+    print("variable is not 1 or 2")
   }
 }
 # Function expressions

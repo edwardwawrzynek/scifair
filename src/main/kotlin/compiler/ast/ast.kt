@@ -80,22 +80,51 @@ class ASTStructLiteral(loc: ASTNodeLocation?, val type: ASTStructType, override 
 /** AST Types **/
 open class ASTType(loc: ASTNodeLocation?): ASTNode(loc)
 
-class ASTStringType(loc: ASTNodeLocation?): ASTType(loc)
+class ASTStringType(loc: ASTNodeLocation?): ASTType(loc) {
+    override fun toString() = "string"
+    override fun equals(other: Any?) = other is ASTStringType
+}
 
-class ASTIntType(loc: ASTNodeLocation?): ASTType(loc)
+class ASTIntType(loc: ASTNodeLocation?): ASTType(loc) {
+    override fun toString() = "int"
+    override fun equals(other: Any?) = other is ASTIntType
+}
 
-class ASTFloatType(loc: ASTNodeLocation?): ASTType(loc)
+class ASTFloatType(loc: ASTNodeLocation?): ASTType(loc) {
+    override fun toString() = "float"
+    override fun equals(other: Any?) = other is ASTFloatType
+}
 
-class ASTBoolType(loc: ASTNodeLocation?): ASTType(loc)
+class ASTBoolType(loc: ASTNodeLocation?): ASTType(loc) {
+    override fun toString() = "bool"
+    override fun equals(other: Any?) = other is ASTBoolType
+}
 
-class ASTArrayType(loc: ASTNodeLocation?, val type: ASTType): ASTType(loc)
+class ASTArrayType(loc: ASTNodeLocation?, val type: ASTType): ASTType(loc) {
+    override fun toString() = "[]${type}"
+    override fun equals(other: Any?) = other is ASTArrayType && other.type == type
+}
 
 /** used for annotating type on nulls */
-class ASTAnyStructType(loc: ASTNodeLocation?): ASTType(loc)
+class ASTAnyStructType(loc: ASTNodeLocation?): ASTType(loc) {
+    override fun toString() = "struct *"
+    override fun equals(other: Any?) = other is ASTAnyStructType || other is ASTStructType || other is ASTFullStructType
+}
 
-class ASTStructType(loc: ASTNodeLocation?, val typeName: String): ASTType(loc)
+/** represents a structure type */
+class ASTStructType(loc: ASTNodeLocation?, val typeName: String): ASTType(loc) {
+    override fun toString() = "struct $typeName"
+    override fun equals(other: Any?) = (other is ASTStructType && other.typeName == typeName) || (other is ASTFullStructType && other.name == typeName) || other is ASTAnyStructType
+}
+
+/** represents a structure type with field types looked up in the structure table */
+class ASTFullStructType(loc: ASTNodeLocation?, val fields: List<ASTStructFieldType>, val name: String): ASTType(loc) {
+    override fun toString() = "struct $name"
+    override fun equals(other: Any?) = (other is ASTFullStructType && other.name == name) || (other is ASTStructType && other.typeName == name) || other is ASTAnyStructType
+}
 
 class ASTFunctionType(loc: ASTNodeLocation?, val returnType: ASTType, val argTypes: List<ASTType>): ASTType(loc)
+
 
 /** struct declaration */
 class ASTStructFieldType(val name: String, val type: ASTType)
