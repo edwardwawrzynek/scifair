@@ -5,14 +5,21 @@ struct person {
   parent: struct person
 }
 # user defined type literals
-a: []struct person = struct person {age: 0, name: "hello", parent: struct person {age: 1, name: "test", parent: null}}
+a: struct person = struct person {age: 0, name: "hello", parent: struct person {age: 1, name: "test", parent: null}}
 variable: []int = []int [0, 1, 2, 3]
+nested: [][]int = [][]int [[]int [0, 1], []int [3, 4]]
 # variable definition
 variable: int = 1
 # Assignment
 variable += 1
-# Function calls 
-func(arg1, arg2, arg3)
+test: int = variable
+
+!nested[2][variable]
+variable++
+
+# Function calls
+print("hello, world")
+
 arg1 + arg2
 # Conditionals
 switch variable {

@@ -29,8 +29,26 @@ class SymbolTable(val parentTable: SymbolTable?) {
  */
 class JSBackend(val emit: Emitter): ASTBaseVisitor<ASTType?>(null) {
 
-    companion object {
-        val structTypeTable = SymbolTable(null)
+
+    private val structTypeTable = SymbolTable(null)
+    /* start symbol table with a global symbol table */
+    private val symbolTableList = mutableListOf<SymbolTable>(SymbolTable(null))
+
+    init {
+        /* TODO: read builtins from file */
+        getSymbolTable().addSymbol("print", Symbol(ASTFunctionType(null, ASTIntType(null), listOf(ASTStringType(null)))))
+    }
+
+    private fun pushSymbolTable() {
+        symbolTableList.add(SymbolTable(getSymbolTable()))
+    }
+
+    private fun popSymbolTable() {
+        symbolTableList.removeAt(symbolTableList.size - 1)
+    }
+
+    private fun getSymbolTable(): SymbolTable {
+        return symbolTableList.last()
     }
 
     fun emit(msg: String) {
@@ -115,6 +133,25 @@ class JSBackend(val emit: Emitter): ASTBaseVisitor<ASTType?>(null) {
         return type.type
     }
 
+    /** visit an array literal, checking the types of each value match the expected type */
+    override fun visitASTArrayLiteral(node: ASTArrayLiteral): ASTType? {
+        emit("[")
+
+        node.value.forEach { entry ->
+            val type = visitASTNode(entry)
+            emit(", ")
+
+            if(type == null) {
+                compilerError("expected an expression", entry.loc)
+            } else if(type != (node.type as ASTArrayType).type) {
+                compilerError("expected an expression of type '${node.type.type}', but expression is of type '${type}'", entry.loc)
+            }
+        }
+        emit("]")
+
+        return node.type
+    }
+
     override fun visitASTIntLiteral(node: ASTIntLiteral): ASTType? {
         emit("${node.value}")
 
@@ -133,10 +170,151 @@ class JSBackend(val emit: Emitter): ASTBaseVisitor<ASTType?>(null) {
         return ASTAnyStructType(node.loc)
     }
 
+    override fun visitASTFloatLiteral(node: ASTFloatLiteral): ASTType? {
+        emit("${node.value}")
+
+        return ASTFloatType(node.loc)
+    }
+
+    override fun visitASTBoolLiteral(node: ASTBoolLiteral): ASTType? {
+        emit("${node.value}")
+
+        return ASTBoolType(node.loc)
+    }
+
+
+    /** visit a variable declaration */
     override fun visitASTVarDecl(node: ASTVarDecl): ASTType? {
         emit("let ${node.name} = ")
-        visitASTNode(node.initialValue)
+        val initType = visitASTNode(node.initialValue)
+        if(node.type != null && initType != node.type) {
+            compilerError("initial value is expected to be of type '${node.type}, but is of type '${initType}'", node.loc)
+        }
+
+        val realType = if(initType is ASTAnyStructType && node.type != null)
+            node.type
+        else
+            initType
+
+        if(getSymbolTable().findSymbol(node.name) != null) {
+            compilerError("redefinition or shadowing of variable '${node.name}'", node.loc)
+        }
+
+        getSymbolTable().addSymbol(node.name, Symbol(realType!!))
+
+        return realType
+    }
+
+    /** visit a function expression */
+    override fun visitASTFuncBinding(node: ASTFuncBinding): ASTType? {
+        emit("((")
+        node.argNames.forEach {arg -> emit("${arg}, ")}
+        emit(") => {\n")
+
+        pushSymbolTable()
+
+        node.body.forEach { stmnt ->
+            visitASTNode(stmnt)
+        }
+
+        emit("})")
+
+        popSymbolTable()
+
+        return node.type
+    }
+
+    override fun visitASTFuncApplication(node: ASTFuncApplication): ASTType? {
+        if(node.expr is ASTVarExpr && node.expr.name in specialFunctionNames) {
+            /* handle function call with special syntax */
+            val func = node.expr.name
+
+            if(func == "return") {
+                emit("return ")
+                if(node.args.size != 1) compilerError("return must be invoked with one parameter", node.loc)
+                visitASTNode(node.args[0])
+                emit(";")
+            } else if(func == ".") {
+                emit("(")
+                if(node.args.size != 2) compilerError("field access must be invoked with two parameters", node.loc)
+                val type = visitASTNode(node.args[0])
+                if(type == null) compilerError(". operator can only be applied to an expression", node.loc)
+                if(node.args[1] !is ASTVarExpr) compilerError("field name must be a name, not an expression", node.loc)
+                if(!type.hasField((node.args[1] as ASTVarExpr).name)) {
+                    compilerError("type '${type}' has no field '${(node.args[1] as ASTVarExpr).name}", node.loc)
+                }
+                emit(").${(node.args[1] as ASTVarExpr).name}")
+                return type.fieldType((node.args[1] as ASTVarExpr).name)
+            } else if(func == "[]") {
+                emit("(")
+                if(node.args.size != 2) compilerError("array index access must be invoked with two parameters", node.loc)
+                val type = visitASTNode(node.args[0])
+                if(type !is ASTArrayType) compilerError("array index operator can only be applied to array types, but it is applied to expression of type '$type' here", node.loc)
+                emit(")[")
+                val indexType = visitASTNode(node.args[1])
+                emit("]")
+                if(indexType !is ASTIntType) {
+                    compilerError("expected array index to be of type 'int', but it is of type '$indexType'", node.args[1].loc)
+                }
+                return type.type
+            } else {
+                /* function is a "normal" arithmetic operator */
+                if(func in prefixOps || func in postFixOps) {
+                    if(node.args.size != 1) compilerError("$func operator only takes one argument", node.loc)
+                    if(func in prefixOps)
+                        emit(func)
+                    emit("(")
+                    val type = visitASTNode(node.args[0])
+                    if(!(type?.hasOp(func)!!)) compilerError("$func operator not defined on type '${type}'", node.loc)
+                    emit(")")
+                    if(func in postFixOps)
+                        emit(func)
+                }
+            }
+        } else {
+            val type = visitASTNode(node.expr)
+            emit("(")
+            if(type == null) {
+                compilerError("function call must be on expression", node.loc)
+            }
+            if(type !is ASTFunctionType) {
+                compilerError("expression is not a function", node.loc)
+            }
+            if(type.argTypes.size != node.args.size) {
+                compilerError("expected ${type.argTypes.size} argument(s) to function, but ${node.args.size} were passed", node.loc)
+            }
+            type.argTypes.indices.map {i ->
+                val arg = node.args[i]
+                val expectType = type.argTypes[i]
+
+                val argType = visitASTNode(arg)
+                emit(", ")
+
+                if(argType == null) {
+                    compilerError("argument must be expression", arg.loc)
+                }
+
+                if(argType != expectType) {
+                    compilerError("function expects argument of type '${expectType}', but argument passed is of type '${argType}'", arg.loc)
+                }
+            }
+            emit(")")
+
+            return type.returnType
+        }
 
         return null
+    }
+
+    override fun visitASTVarExpr(node: ASTVarExpr): ASTType? {
+        /* lookup variable in symbol table */
+        val sym = getSymbolTable().findSymbol(node.name)
+        if(sym == null) {
+            compilerError("variable '${node.name}' is not defined", node.loc)
+        }
+
+        emit(node.name)
+
+        return sym.type
     }
 }

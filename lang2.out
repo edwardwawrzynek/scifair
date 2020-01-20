@@ -5,14 +5,18 @@ struct person {
   struct person parent;
 };
 // user defined type literals
-struct person[] a = (struct person) { .age = 0, .name = "hello", .parent = (struct person) { .age = 1, .name = "test", .parent = null } };
+struct person a = (struct person) { .age = 0, .name = "hello", .parent = (struct person) { .age = 1, .name = "test", .parent = null } };
 int[] variable = (int[]) {0, 1, 2, 3};
-// variableiable definition
+int[][] nested = (int[][]) {(int[]) {0, 1}, (int[]) {3, 4}};
+// variable definition
 int variable = 1;
 // Assignment
 variable += 1;
-// Function calls 
-func(arg1, arg2, arg3);
+int test = variable;
+!nested[2][variable];
+variable++;
+// Function calls
+print("hello, world");
 arg1 + arg2;
 // Conditionals
 if (variable == 1) {
@@ -32,7 +36,7 @@ if (!(variable > 5)) {
   print("variable <= 5");
   print("cool");
 }
-// ast->src conversion: use this form if a conditional chain with at least two equality checks on the same variableiable is present
+// ast->src conversion: use this form if a conditional chain with at least two equality checks on the same variable is present
 if (variable == 1) {
   print("variable is 1");
 } else if (variable == 2) {

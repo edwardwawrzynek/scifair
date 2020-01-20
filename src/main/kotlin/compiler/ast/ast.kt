@@ -78,26 +78,35 @@ data class ASTStructField(val name: String, val value: ASTNode)
 class ASTStructLiteral(loc: ASTNodeLocation?, val type: ASTStructType, override val value: List<ASTStructField>): ASTLiteral(loc)
 
 /** AST Types **/
-open class ASTType(loc: ASTNodeLocation?): ASTNode(loc)
+open class ASTType(loc: ASTNodeLocation?): ASTNode(loc) {
+    open fun hasField(field: String) = false
+    open fun fieldType(field: String): ASTType? = null
+
+    open fun hasOp(op: String): Boolean = false
+}
 
 class ASTStringType(loc: ASTNodeLocation?): ASTType(loc) {
     override fun toString() = "string"
     override fun equals(other: Any?) = other is ASTStringType
+    override fun hasOp(op: String) = op in listOf("+")
 }
 
 class ASTIntType(loc: ASTNodeLocation?): ASTType(loc) {
     override fun toString() = "int"
     override fun equals(other: Any?) = other is ASTIntType
+    override fun hasOp(op: String) = op in listOf("++", "--", "!", "~", "*", "/", "%", "+", "-", "<<", ">>", "<", "<=", ">", ">=", "==", "!=", "&", "|", "^", "&&", "||")
 }
 
 class ASTFloatType(loc: ASTNodeLocation?): ASTType(loc) {
     override fun toString() = "float"
     override fun equals(other: Any?) = other is ASTFloatType
+    override fun hasOp(op: String) = op in listOf("++", "--", "!", "~", "*", "/", "%", "+", "-", "<<", ">>", "<", "<=", ">", ">=", "==", "!=", "&", "|", "^", "&&", "||")
 }
 
 class ASTBoolType(loc: ASTNodeLocation?): ASTType(loc) {
     override fun toString() = "bool"
     override fun equals(other: Any?) = other is ASTBoolType
+    override fun hasOp(op: String) = op in listOf("!", "==", "!=", "&&", "||")
 }
 
 class ASTArrayType(loc: ASTNodeLocation?, val type: ASTType): ASTType(loc) {
@@ -121,6 +130,9 @@ class ASTStructType(loc: ASTNodeLocation?, val typeName: String): ASTType(loc) {
 class ASTFullStructType(loc: ASTNodeLocation?, val fields: List<ASTStructFieldType>, val name: String): ASTType(loc) {
     override fun toString() = "struct $name"
     override fun equals(other: Any?) = (other is ASTFullStructType && other.name == name) || (other is ASTStructType && other.typeName == name) || other is ASTAnyStructType
+
+    override fun hasField(field: String) = field in fields.map {f -> f.name}
+    override fun fieldType(field: String) = fields.find { f -> f.name == field }?.type
 }
 
 class ASTFunctionType(loc: ASTNodeLocation?, val returnType: ASTType, val argTypes: List<ASTType>): ASTType(loc)
