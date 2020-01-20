@@ -32,7 +32,7 @@ class JSBackend(val emit: Emitter): ASTBaseVisitor<ASTType?>(null) {
 
     private val structTypeTable = SymbolTable(null)
     /* start symbol table with a global symbol table */
-    private val symbolTableList = mutableListOf<SymbolTable>(SymbolTable(null))
+    private val symbolTableList = mutableListOf(SymbolTable(null))
 
     init {
         /* TODO: read builtins from file */
@@ -51,7 +51,7 @@ class JSBackend(val emit: Emitter): ASTBaseVisitor<ASTType?>(null) {
         return symbolTableList.last()
     }
 
-    fun emit(msg: String) {
+    private fun emit(msg: String) {
         emit.emit(msg, 0)
     }
 
@@ -222,6 +222,7 @@ class JSBackend(val emit: Emitter): ASTBaseVisitor<ASTType?>(null) {
 
         node.body.forEach { stmnt ->
             visitASTNode(stmnt)
+            emit(";\n")
         }
 
         emit("})")
@@ -239,8 +240,7 @@ class JSBackend(val emit: Emitter): ASTBaseVisitor<ASTType?>(null) {
             if(func == "return") {
                 emit("return ")
                 if(node.args.size != 1) compilerError("return must be invoked with one parameter", node.loc)
-                visitASTNode(node.args[0])
-                emit(";")
+                return visitASTNode(node.args[0])
             } else if(func == ".") {
                 emit("(")
                 if(node.args.size != 2) compilerError("field access must be invoked with two parameters", node.loc)
@@ -276,6 +276,8 @@ class JSBackend(val emit: Emitter): ASTBaseVisitor<ASTType?>(null) {
                     emit(")")
                     if(func in postFixOps)
                         emit(func)
+
+                    return type
                 } else {
                     if(node.args.size != 2) compilerError("$func operator takes two arguments", node.loc)
                     emit("(")
@@ -284,8 +286,10 @@ class JSBackend(val emit: Emitter): ASTBaseVisitor<ASTType?>(null) {
                     val type2 = visitASTNode(node.args[1])
                     emit(")")
 
-                    if(!(type1!!.hasOp(func))) compilerError("$func operator not defined on type '${type1}'")
-                    if(type1 != type2) compilerError("arguments to $func operator must be the same type, but they are of types '${type1}' and '${type2}'")
+                    if(!(type1!!.hasOp(func))) compilerError("$func operator not defined on type '${type1}'", node.loc)
+                    if(type1 != type2) compilerError("arguments to $func operator must be the same type, but they are of types '${type1}' and '${type2}'", node.loc)
+
+                    return type1
                 }
             }
         } else {
@@ -319,8 +323,6 @@ class JSBackend(val emit: Emitter): ASTBaseVisitor<ASTType?>(null) {
 
             return type.returnType
         }
-
-        return null
     }
 
     override fun visitASTVarExpr(node: ASTVarExpr): ASTType? {
@@ -333,5 +335,60 @@ class JSBackend(val emit: Emitter): ASTBaseVisitor<ASTType?>(null) {
         emit(node.name)
 
         return sym.type
+    }
+
+    override fun visitASTAssignment(node: ASTAssignment): ASTType? {
+        val left = visitASTNode(node.left)
+
+        emit(" = ")
+        val right = visitASTNode(node.right)
+
+        if(left != right) {
+            compilerError("can't assign value of type '${right}' to lvalue of type '${left}'", node.loc)
+        }
+
+        return left
+    }
+
+    override fun visitASTConditional(node: ASTConditional): ASTType? {
+        node.conditions.indices.map {
+            i ->
+            val cond = node.conditions[i]
+            val body = node.bodies[i]
+
+            if(i == 0) emit("if ") else emit("else if ")
+            emit("(")
+            visitASTNode(cond)
+            emit(") {\n")
+            body.map {
+                stmt ->
+                visitASTNode(stmt)
+                emit(";\n")
+            }
+            emit("}")
+        }
+
+        return null
+    }
+
+    override fun visitASTForLoop(node: ASTForLoop): ASTType? {
+        emit("for (")
+        visitASTNode(node.initial)
+        emit("; ")
+        val type = visitASTNode(node.condition)
+        if(type == null) {
+            compilerError("for loop condition must be expression", node.condition.loc)
+        }
+        emit("; ")
+        visitASTNode(node.end)
+        emit(") {\n")
+        node.body.map {
+            stmnt ->
+            visitASTNode(stmnt)
+            emit(";\n")
+        }
+        emit("}")
+
+        return null
     }
 }

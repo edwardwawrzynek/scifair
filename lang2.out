@@ -6,9 +6,10 @@ struct person {
 };
 // user defined type literals
 struct person a = (struct person) { .age = 0, .name = "hello", .parent = (struct person) { .age = 1, .name = "test", .parent = null } };
-int[] variable = (int[]) {0, 1, 2, 3};
+int[] variablea = (int[]) {0, 1, 2, 3};
 int[][] nested = (int[][]) {(int[]) {0, 1}, (int[]) {3, 4}};
 // variable definition
+int variable = 7;
 // Function calls
 print("hello, world");
 // Conditionals
@@ -58,7 +59,7 @@ int sum_inline (int a, int b) {
 }
 // Loops (note: this would be converted to a range automatically)
 for (int i = 0; i < 5; i++) {
-  print(i);
+  print("hello, loop");
 }
 // Loops alternate forms
 //ast->src conversion: use this form for a for loop with a starting assignment, less than check, and increment by one

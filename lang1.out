@@ -5,9 +5,10 @@
   (parent (struct person))))
 ; user defined type literals
 (setq (a (struct person)) (struct person ((age 0) (name "hello") (parent (struct person ((age 1) (name "test") (parent null)))))))
-(setq (variable (array int)) (array int (0 1 2 3)))
+(setq (variablea (array int)) (array int (0 1 2 3)))
 (setq (nested (array (array int))) (array (array int) ((array int (0 1)) (array int (3 4)))))
 ; variable definition
+(setq (variable int) 7)
 ; Function calls
 (print "hello, world")
 ; Conditionals
@@ -46,7 +47,7 @@
   (return (+ a b)))
 ; Loops (note: this would be converted to a range automatically)
 (for (setq (i int) 0) (< i 5) (++ i) (
-  (print i)))
+  (print "hello, loop")))
 ; Loops alternate forms
 ;ast->src conversion: use this form for a for loop with a starting assignment, less than check, and increment by one
 ; this form could easily support type inference

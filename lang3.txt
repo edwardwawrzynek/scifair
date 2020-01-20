@@ -6,9 +6,11 @@ struct person {
 }
 # user defined type literals
 a: struct person = struct person {age: 0, name: "hello", parent: struct person {age: 1, name: "test", parent: null}}
-variable: []int = []int [0, 1, 2, 3]
+variablea: []int = []int [0, 1, 2, 3]
 nested: [][]int = [][]int [[]int [0, 1], []int [3, 4]]
 # variable definition
+
+variable: int = 7
 
 # Function calls
 print("hello, world")
@@ -62,7 +64,7 @@ fn sum (a: int, b: int) -> int {
 fn sum_inline (a: int, b: int) -> int => return a + b
 # Loops (note: this would be converted to a range automatically)
 for i: int = 0, i < 5, i++ {
-  print(i)
+  print("hello, loop")
 }
 # Loops alternate forms
 #ast->src conversion: use this form for a for loop with a starting assignment, less than check, and increment by one

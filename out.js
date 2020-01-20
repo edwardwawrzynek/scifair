@@ -8,35 +8,61 @@ this.parent = parent;
 };
 /* user defined type literals*/;
 let a = (new person({age: 0, name: "hello", parent: (new person({age: 1, name: "test", parent: null, })), }));
-let variable = [0, 1, 2, 3, ];
+let variablea = [0, 1, 2, 3, ];
 let nested = [[0, 1, ], [3, 4, ], ];
 /* variable definition*/;
+let variable = 7;
 /* Function calls*/;
 print("hello, world", );
 /* Conditionals*/;
-;
+if ((variable) == (1)) {
+print("variable is 1", );
+}else if ((variable) == (2)) {
+print("variable is 2", );
+}else if (true) {
+print("variable is not 1 or 2", );
+};
 /* Conditionals (alternate forms)*/;
 /* ast->src conversion: use this form if a single conditional with a body of one expression is present*/;
-;
+if ((variable) == (1)) {
+print("variable is 1", );
+};
 /* ast->src conversion: use this form if a conditonal is a negation*/;
-;
+if (!((variable) > (5))) {
+print("variable <= 5", );
+print("cool", );
+};
 /* ast->src conversion: use this form if a conditional chain with at least two equality checks on the same variable is present*/;
-;
+if ((variable) == (1)) {
+print("variable is 1", );
+}else if ((variable) == (2)) {
+print("variable is 2", );
+}else if (true) {
+print("variable is not 1 or 2", );
+};
 /* Function expressions*/;
 ((a, b, ) => {
-print("test func", )return (a) + (b);});
+print("test func", );
+return (a) + (b);
+});
 /* Named functions*/;
 let sum = ((a, b, ) => {
-print("test func", )return (a) + (b);});
+print("test func", );
+return (a) + (b);
+});
 /* functions (alternate form)*/;
 /*ast->src conversion: use these forms if single expression body is present*/;
 /* if we have type inference, specifying return type will be unnessesary*/;
 ((a, b, ) => {
-return (a) + (b);});
+return (a) + (b);
+});
 let sum_inline = ((a, b, ) => {
-return (a) + (b);});
+return (a) + (b);
+});
 /* Loops (note: this would be converted to a range automatically)*/;
-;
+for (let i = 0; (i) < (5); (i)++) {
+print("hello, loop", );
+};
 /* Loops alternate forms*/;
 /*ast->src conversion: use this form for a for loop with a starting assignment, less than check, and increment by one*/;
 /* this form could easily support type inference*/;
