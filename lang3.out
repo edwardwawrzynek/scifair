@@ -1,94 +1,51 @@
-#user defined types
+# A language using s-expressions
+# not lisp (very much incomptabile)
+
+# user defined types
 struct person {
   name: string
   age: int
   parent: struct person
 }
 # user defined type literals
-a: struct person = struct person {age: 0, name: "hello", parent: struct person {age: 1, name: "test", parent: null}}
-variablea: []int = []int [0, 1, 2, 3]
-nested: [][]int = [][]int [[]int [0, 1], []int [3, 4]]
-# variable definition
-variable: int = 7
+struct person {name: "hello", age: 0, parent: null}
+var_array: []int = []int [0, 1, 2, 3]
+
+# Variable definition
+var: int = 1
+
+# Assignment
+var += 1
+
 # Function calls
-print("hello, world")
+
+var + var
+func(var, var, var)
+
 # Conditionals
-switch variable {
+switch var {
   1 -> {
-    print("variable is 1")
+    print("var is 1")
+    a += 1
   }
   2 -> {
-    print("variable is 2")
+    print("var is 2")
   }
   else -> {
-    print("variable is not 1 or 2")
+    print("var is not 1 or 2")
   }
 }
-# Conditionals (alternate forms)
-# ast->src conversion: use this form if a single conditional with a body of one expression is present
-print("variable is 1") if variable == 1
-# ast->src conversion: use this form if a conditonal is a negation
-unless variable > 5 {
-  print("variable <= 5")
-  print("cool")
+
+# Functions expressions
+(a: int, b: int) -> int => a + b
+
+# Named functions (no special syntax)
+fn sum (a: int, b: int) -> int => a + b
+
+fn getName (person: struct person) -> string => return person.name
+
+# Loops
+for i: int = 0, i < 5, i += 1 {
+  print(i)
+  print(i + 1)
 }
-# ast->src conversion: use this form if a conditional chain with at least two equality checks on the same variable is present
-switch variable {
-  1 -> {
-    print("variable is 1")
-  }
-  2 -> {
-    print("variable is 2")
-  }
-  else -> {
-    print("variable is not 1 or 2")
-  }
-}
-# Function expressions
-(a: int, b: int) -> int {
-  print("test func")
-  return a + b
-}
-# Named functions
-fn sum (a: int, b: int) -> int {
-  print("test func")
-  return a + b
-}
-# functions (alternate form)
-#ast->src conversion: use these forms if single expression body is present
-# if we have type inference, specifying return type will be unnessesary
-(a: int, b: int) -> int => return a + b
-fn sum_inline (a: int, b: int) -> int => return a + b
-# Loops (note: this would be converted to a range automatically)
-for i: int = 0, i < 5, i++ {
-  print("hello, loop")
-}
-# Loops alternate forms
-#ast->src conversion: use this form for a for loop with a starting assignment, less than check, and increment by one
-# this form could easily support type inference
-#range i: int in 0..5 {
-#}
-people: []struct person = []struct person [struct person {name: "p1", age: 1, parent: null}, struct person {name: "p2", age: 2, parent: null}]
-# foreach form (type inference could be easily supported):
-#foreach p: person, index: int in people {
-#  printnum index
-#  print p.name
-#}
-# the above loop would be matched to this form
-#for index: int = 0, i < people.length, i++ {
-#  p = people[i]
-#  printnum index
-#  print p.name
-#}
-# potentially also match this form (inline array index)
-#for index: int = 0, i < people.length, i++ {
-#  printnum index
-#  print people[i].name
-#}
-# map espression
-#names: []string = map elem: person, i: int in people => elem.name
-# many loops could be pattern matched to a map, but we should at least support this form:
-#names: []string = []
-#foreach elem: person, i: int in people {
-#  names.push(elem.name)
-#}

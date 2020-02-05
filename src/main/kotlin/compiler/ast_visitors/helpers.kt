@@ -91,10 +91,16 @@ class TestEmitter(): Emitter {
     var lastChar = '\n'
     override fun emit(msg: String, indent: Int) {
         for(c in msg) {
-            if(lastChar == '\n') value += '\t'
+            if(lastChar == '\n') {
+                (0 until indent).map { value += '\t' }
+            }
             value += c
             lastChar = c
         }
+    }
+
+    fun clear() {
+        value = ""
     }
 
     override fun close() {
