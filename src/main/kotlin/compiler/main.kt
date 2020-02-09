@@ -86,13 +86,122 @@ object Main {
         emitter.close()
     }
 
+    fun astBackend(ast: ASTNode, fileName: String) {
+        val emitter = FileEmitter(FileWriter(fileName))
+
+        val backend = JSBackend(emitter)
+        backend.visitASTNode(ast)
+        emitter.close()
+    }
+
     /** get currently active file */
     fun getActiveFilename(): String {
         return srcFilename
     }
 
+    fun usage(): Nothing {
+        println("usage: lang <command> [options] [file]\n" +
+                "commands:\n" +
+                "compile --from src_lang --out out.js src.lang\n" +
+                "convert --from src_lang --to dst_lang --out dst.lang src.lang")
+
+        exitProcess(1)
+    }
+
+    /* compile cli subcommand */
+    fun doCompile(file: String, lang: String, out_file: String) {
+        val parsers = mapOf(
+                "lang1" to this::lang1toAST,
+                "lang2" to this::lang2toAST,
+                "lang3" to this::lang3toAST
+        )
+
+        val parser = parsers[lang] ?: usage()
+        val ast = parser(file)
+        astBackend(ast, out_file)
+    }
+
+    /* convert cli subcommand */
+    fun doConvert(src: String, dst: String, srcLang: String, dstLang: String) {
+        val parsers = mapOf(
+                "lang1" to this::lang1toAST,
+                "lang2" to this::lang2toAST,
+                "lang3" to this::lang3toAST
+        )
+        val writers = mapOf(
+                "lang1" to this::astToLang1,
+                "lang2" to this::astToLang2,
+                "lang3" to this::astToLang3
+        )
+
+        val parser = parsers[srcLang] ?: usage()
+        val writer = writers[dstLang] ?: usage()
+
+        val ast = parser(src)
+        writer(ast, dst)
+    }
+
+    fun parseArgs(args: Array<String>) {
+        if(args.size < 2) usage()
+        val cmd = args[0]
+        if(cmd == "compile") {
+            var src_lang: String? = null
+            var out: String? = null
+            var src_file: String? = null
+
+            var i = 1
+            while(i < args.size) {
+                val arg = args[i]
+                if (arg == "--from") {
+                    i++
+                    src_lang = args[i]
+                } else if (arg == "--out") {
+                    i++
+                    out = args[i]
+                } else {
+                    src_file = arg
+                }
+                i++
+            }
+
+            if(src_file == null || out == null || src_lang == null) usage()
+            doCompile(src_file, src_lang, out)
+
+        } else if (cmd == "convert") {
+            var src_lang: String? = null
+            var dst_lang: String? = null
+            var src_file: String? = null
+            var dst_file: String? = null
+
+            var i = 1
+            while(i < args.size) {
+                val arg = args[i]
+                if (arg == "--from") {
+                    i++
+                    src_lang = args[i]
+                } else if (arg == "--to") {
+                    i++
+                    dst_lang = args[i]
+                } else if(arg == "--out") {
+                    i++
+                    dst_file = args[i]
+                } else {
+                    src_file = arg
+                }
+                i++
+            }
+
+            if(src_file == null || dst_file == null || src_lang == null || dst_lang == null) usage()
+
+            doConvert(src_file, dst_file, src_lang, dst_lang)
+        } else {
+            usage()
+        }
+    }
+
     @JvmStatic fun main(args: Array<String>) {
-        val ast = lang1toAST("lang1.txt")
+        parseArgs(args)
+        /*val ast = lang1toAST("lang1.txt")
         astToLang2(ast, "lang2.out")
         val ast2 = lang2toAST("lang2.out")
         astToLang3(ast2, "lang3.out")
@@ -102,6 +211,6 @@ object Main {
         val emit = FileEmitter(FileWriter("out.js"))
         val backend = JSBackend(emit)
         backend.visitASTNode(ast3)
-        emit.close()
+        emit.close()*/
     }
 }
