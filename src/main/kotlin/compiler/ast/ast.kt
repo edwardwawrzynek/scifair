@@ -1,5 +1,6 @@
 package compiler.ast
 
+import com.cedarsoftware.util.DeepEquals
 import compiler.Main
 import java.io.*
 import org.antlr.v4.runtime.*
@@ -73,7 +74,11 @@ class ASTNullLiteral(loc: ASTNodeLocation?): ASTLiteral(loc)
 
 class ASTArrayLiteral(loc: ASTNodeLocation?, val type: ASTType, override val value: List<ASTNode>): ASTLiteral(loc)
 
-data class ASTStructField(val name: String, val value: ASTNode)
+data class ASTStructField(val name: String, val value: ASTNode) {
+    override fun equals(other: Any?): Boolean {
+        return other is ASTStructField && other.name == name && DeepEquals.deepEquals(other.value, value)
+    }
+}
 
 class ASTStructLiteral(loc: ASTNodeLocation?, val type: ASTStructType, override val value: List<ASTStructField>): ASTLiteral(loc)
 
