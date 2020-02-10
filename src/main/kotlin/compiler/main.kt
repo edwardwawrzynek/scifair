@@ -89,6 +89,10 @@ object Main {
     fun astBackend(ast: ASTNode, fileName: String) {
         val emitter = FileEmitter(FileWriter(fileName))
 
+        emitter.emit("/** --- Generated JS output from file ", 0)
+        emitter.emit(srcFilename, 0)
+        emitter.emit(" --- **/", 0)
+
         val backend = JSBackend(emitter)
         backend.visitASTNode(ast)
         emitter.close()

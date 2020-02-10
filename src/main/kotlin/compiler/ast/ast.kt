@@ -10,41 +10,6 @@ import org.antlr.v4.runtime.*
  *  these are mostly just data structures without methods
  */
 
-/** Location of ast node in source file **/
-class ASTNodeLocation(val lineNum: Int, val linePos: Int, val fileName: String) {
-
-    fun print() {
-        try {
-            val file = BufferedReader(FileReader(fileName))
-            for (i in 0 until lineNum - 1) {
-                file.readLine()
-            }
-            val line = file.readLine()
-            println(line)
-
-            for (i in 0 until linePos) {
-                if (line[i] == '\t') {
-                    print("\t")
-                } else {
-                    print(" ")
-                }
-            }
-            System.out.println("\u001B[1;31m^\u001B[39;22m")
-
-
-        } catch (err: IOException) {
-            println("IOException")
-        }
-
-    }
-
-    override fun equals(other: Any?): Boolean {
-        return other is ASTNodeLocation
-    }
-}
-
-fun ASTLoc(tok: Token): ASTNodeLocation = ASTNodeLocation(tok.line, tok.charPositionInLine, Main.getActiveFilename())
-
 /** Root AST Node class **/
 /** The loc field represents the spot in the program from which the ast was generated
  * it is used for error reporting and is not an inherently necessary part of the ast
@@ -117,6 +82,15 @@ class ASTBoolType(loc: ASTNodeLocation?): ASTType(loc) {
 class ASTArrayType(loc: ASTNodeLocation?, val type: ASTType): ASTType(loc) {
     override fun toString() = "[]${type}"
     override fun equals(other: Any?) = other is ASTArrayType && other.type == type
+
+    override fun hasField(field: String) = field in listOf("length", "push")
+    override fun fieldType(field: String): ASTType? {
+        return when(field) {
+            "length" -> ASTIntType(null)
+            "push" -> ASTFunctionType(null, ASTIntType(null), listOf(type))
+            else -> null
+        }
+    }
 }
 
 /** used for annotating type on nulls */
@@ -173,3 +147,38 @@ class ASTConditional(loc: ASTNodeLocation?, val conditions: List<ASTNode>, val b
 
 /** For loop */
 class ASTForLoop(loc: ASTNodeLocation?, val initial: ASTNode, val condition: ASTNode, val end: ASTNode, val body: List<ASTNode>): ASTNode(loc)
+
+/** Location of ast node in source file **/
+class ASTNodeLocation(val lineNum: Int, val linePos: Int, val fileName: String) {
+
+    fun print() {
+        try {
+            val file = BufferedReader(FileReader(fileName))
+            for (i in 0 until lineNum - 1) {
+                file.readLine()
+            }
+            val line = file.readLine()
+            println(line)
+
+            for (i in 0 until linePos) {
+                if (line[i] == '\t') {
+                    print("\t")
+                } else {
+                    print(" ")
+                }
+            }
+            System.out.println("\u001B[1;31m^\u001B[39;22m")
+
+
+        } catch (err: IOException) {
+            println("IOException")
+        }
+
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is ASTNodeLocation
+    }
+}
+
+fun ASTLoc(tok: Token): ASTNodeLocation = ASTNodeLocation(tok.line, tok.charPositionInLine, Main.getActiveFilename())

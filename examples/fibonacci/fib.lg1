@@ -1,0 +1,17 @@
+; Fibonacci Example Program
+; Author: Edward Wawrzynek
+
+; return the n-th fibonacci number
+(defun fib int ((n int))
+  (setq (a int) 0)
+  (setq (b int) 1)
+  (for (setq (i int) 0) (< i n) (= i (+ i 1)) (
+    (setq (tmp int) b)
+    (= b (+ a b))
+    (= a tmp)))
+  (return a))
+
+; calculate the first 100 fib numbers
+(defun main int ((args (array string)))
+  (for (setq (n int) 0) (< n 100) (= n (+ n 1)) (
+    (printnum (fib n)))))

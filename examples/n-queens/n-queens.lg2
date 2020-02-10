@@ -1,0 +1,94 @@
+// N-Queens problem solver example program
+// Author: Edward Wawrzynek
+
+int[] makeIntArray (int size, int val) {
+  int[] res = (int[]) {};
+  for (int i = 0; i < size; i += 1) {
+    res.push(val);
+  }
+  return res;
+}
+
+struct board {
+  int size;
+  int[] yloc;
+};
+
+// make a blank board
+struct board makeBoard (int n) {
+  return (struct board) { .size = n, .yloc = makeIntArray(n, -1) };
+}
+
+// print out a board
+int printBoard (struct board board) {
+  for (int y = 0; y < board.size; y += 1) {
+    string line = "";
+    for (int x = 0; x < board.size; x += 1) {
+      if (board.yloc[x] == y) {
+        line += " Q";
+      } else {
+        line += " .";
+      }
+    }
+    print(line);
+  }
+  string l = "";
+  for (int n = 0; n < board.size; n += 1) {
+    l += "--";
+  }
+  print(l);
+  return 0;
+}
+
+// check that a board is valid
+bool checkBoard (struct board b) {
+  // check that no row has two pieces
+  int[] rowsFilled = makeIntArray(b.size, 0);
+  for (int x = 0; x < b.size; x += 1) {
+    if (b.yloc[x] != -1) {
+      if (rowsFilled[b.yloc[x]] == 1) {
+        return false;
+      }
+      rowsFilled[b.yloc[x]] = 1;
+    }
+  }
+  // check diagonals
+  // left-down diagonals
+  int[] diag1 = makeIntArray(b.size * 2 - 1, 0);
+  // right-down diagonals
+  int[] diag2 = makeIntArray(b.size * 2 - 1, 0);
+  for (int n = 0; n < b.size; n += 1) {
+    if (b.yloc[n] != -1) {
+      if (diag1[n + b.yloc[n]] == 1) {
+        return false;
+      }
+      if (diag2[n + b.size - 1 - b.yloc[n]] == 1) {
+        return false;
+      }
+      diag1[n + b.yloc[n]] = 1;
+      diag2[n + b.size - 1 - b.yloc[n]] = 1;
+    }
+  }
+  return true;
+}
+
+// solve a board by brute force
+int solve (struct board b, int x) {
+  if (x == b.size) {
+    printBoard(b);
+    return 1;
+  } else {
+    for (int y = 0; y < b.size; y += 1) {
+      b.yloc[x] = y;
+      if (checkBoard(b)) {
+        solve(b, x + 1);
+      }
+      b.yloc[x] = -1;
+    }
+  }
+}
+
+int main (string[] args) {
+  struct board b = makeBoard(8);
+  solve(b, 0);
+}

@@ -1,0 +1,73 @@
+; N-Queens problem solver example program
+; Author: Edward Wawrzynek
+
+(defun makeIntArray (array int) ((size int) (val int))
+  (setq (res (array int)) (array int ()))
+  (for (setq (i int) 0) (< i size) (= i (+ i 1)) (
+    ((. res push) val)))
+  (return res))
+
+(defstruct board (
+  (size int)
+  (yloc (array int))))
+
+; make a blank board
+(defun makeBoard (struct board) ((n int))
+  (return (struct board ((size n) (yloc (makeIntArray n -1))))))
+
+; print out a board
+(defun printBoard int ((board (struct board)))
+  (for (setq (y int) 0) (< y (. board size)) (= y (+ y 1)) (
+    (setq (line string) "")
+    (for (setq (x int) 0) (< x (. board size)) (= x (+ x 1)) (
+      (cond
+        ((== ([] (. board yloc) x) y) ((= line (+ line " Q"))))
+        (true ((= line (+ line " .")))))))
+    (print line)))
+  (setq (l string) "")
+  (for (setq (n int) 0) (< n (. board size)) (= n (+ n 1)) (
+    (= l (+ l "--"))))
+  (print l)
+  (return 0))
+
+; check that a board is valid
+(defun checkBoard bool ((b (struct board)))
+  ; check that no row has two pieces
+  (setq (rowsFilled (array int)) (makeIntArray (. b size) 0))
+  (for (setq (x int) 0) (< x (. b size)) (= x (+ x 1)) (
+    (cond
+      ((!= ([] (. b yloc) x) -1) (
+        (cond
+          ((== ([] rowsFilled ([] (. b yloc) x)) 1) ((return false))))
+        (= ([] rowsFilled ([] (. b yloc) x)) 1))))))
+  ; check diagonals
+  ; left-down diagonals
+  (setq (diag1 (array int)) (makeIntArray (- (* (. b size) 2) 1) 0))
+  ; right-down diagonals
+  (setq (diag2 (array int)) (makeIntArray (- (* (. b size) 2) 1) 0))
+  (for (setq (n int) 0) (< n (. b size)) (= n (+ n 1)) (
+    (cond
+      ((!= ([] (. b yloc) n) -1) (
+        (cond
+          ((== ([] diag1 (+ n ([] (. b yloc) n))) 1) ((return false))))
+        (cond
+          ((== ([] diag2 (- (- (+ n (. b size)) 1) ([] (. b yloc) n))) 1) ((return false))))
+        (= ([] diag1 (+ n ([] (. b yloc) n))) 1)
+        (= ([] diag2 (- (- (+ n (. b size)) 1) ([] (. b yloc) n))) 1))))))
+  (return true))
+
+; solve a board by brute force
+(defun solve int ((b (struct board)) (x int))
+  (cond
+    ((== x (. b size)) (
+      (printBoard b)
+      (return 1)))
+    (true ((for (setq (y int) 0) (< y (. b size)) (= y (+ y 1)) (
+      (= ([] (. b yloc) x) y)
+      (cond
+        ((checkBoard b) ((solve b (+ x 1)))))
+      (= ([] (. b yloc) x) -1)))))))
+
+(defun main int ((args (array string)))
+  (setq (b (struct board)) (makeBoard 8))
+  (solve b 0))

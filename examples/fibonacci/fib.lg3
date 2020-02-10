@@ -1,0 +1,20 @@
+# Fibonacci Example Program
+# Author: Edward Wawrzynek
+
+# return the n-th fibonacci number
+fn fib (n: int) -> int {
+  a: int = 0
+  b: int = 1
+  range i: int in 0..n {
+    tmp: int = b
+    b = a + b
+    a = tmp
+  }
+  return a
+}
+
+# calculate the first 100 fib numbers
+fn main (args: []string) -> int =>
+  range n: int in 0..100 {
+    printnum(fib(n))
+  }

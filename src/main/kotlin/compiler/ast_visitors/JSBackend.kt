@@ -24,6 +24,15 @@ class SymbolTable(val parentTable: SymbolTable?) {
 }
 
 /**
+ * builtin functions
+ */
+val externFuncs = listOf(
+    Pair("print", ASTFunctionType(null, ASTIntType(null), listOf(ASTStringType(null)))),
+    Pair("printnum", ASTFunctionType(null, ASTIntType(null), listOf(ASTIntType(null)))),
+    Pair("input", ASTFunctionType(null, ASTStringType(null), listOf()))
+)
+
+/**
  * A Javascript backend for the ast
  * All visitor methods return the type of the node they visited, or null if node doesn't have a type (statement, etc)
  */
@@ -35,8 +44,12 @@ class JSBackend(val emit: Emitter): ASTBaseVisitor<ASTType?>(null) {
     private val symbolTableList = mutableListOf(SymbolTable(null))
 
     init {
-        /* TODO: read builtins from file */
-        getSymbolTable().addSymbol("print", Symbol(ASTFunctionType(null, ASTIntType(null), listOf(ASTStringType(null)))))
+        externFuncs.map {f -> addExternFunctionPrototype(f.first, f.second)}
+    }
+
+    /* add an external function */
+    private fun addExternFunctionPrototype(name: String, type: ASTFunctionType) {
+        getSymbolTable().addSymbol(name, Symbol(type))
     }
 
     private fun pushSymbolTable() {
@@ -56,11 +69,13 @@ class JSBackend(val emit: Emitter): ASTBaseVisitor<ASTType?>(null) {
     }
 
     override fun visitASTProgram(node: ASTProgram): ASTType? {
+        /* add program header */
+        emit(jsBackendCodeHeader)
         for(n in node.nodes) {
             visitASTNode(n)
             emit(";\n")
         }
-
+        emit(jsBackendPostHeader)
         return null
     }
 
@@ -186,21 +201,34 @@ class JSBackend(val emit: Emitter): ASTBaseVisitor<ASTType?>(null) {
     /** visit a variable declaration */
     override fun visitASTVarDecl(node: ASTVarDecl): ASTType? {
         emit("let ${node.name} = ")
+        /* allow recursive functions by adding symbol entry first */
+        if(node.initialValue is ASTFuncBinding) {
+            if(getSymbolTable().findSymbol(node.name) != null) compilerError("redefinition or shadowing of variable '${node.name}'", node.loc)
+            getSymbolTable().addSymbol(node.name, Symbol(node.type!!))
+        }
         val initType = visitASTNode(node.initialValue)
         if(node.type != null && initType != node.type) {
             compilerError("initial value is expected to be of type '${node.type}, but is of type '${initType}'", node.loc)
         }
 
-        val realType = if(initType is ASTAnyStructType && node.type != null)
+        val realType = if(initType is ASTAnyStructType && node.type != null) {
             node.type
-        else
+        } else if(initType is ASTStructType) {
+            val fullType = structTypeTable.findSymbol(initType.typeName)
+            if(fullType === null) {
+                compilerError("no such structure type '${initType.typeName}'", node.loc)
+            }
+            fullType.type
+        } else {
             initType
-
-        if(getSymbolTable().findSymbol(node.name) != null) {
-            compilerError("redefinition or shadowing of variable '${node.name}'", node.loc)
         }
 
-        getSymbolTable().addSymbol(node.name, Symbol(realType!!))
+        if(node.initialValue !is ASTFuncBinding) {
+            if(getSymbolTable().findSymbol(node.name) != null) {
+                compilerError("redefinition or shadowing of variable '${node.name}'", node.loc)
+            }
+            getSymbolTable().addSymbol(node.name, Symbol(realType!!))
+        }
 
         return realType
     }
@@ -213,8 +241,17 @@ class JSBackend(val emit: Emitter): ASTBaseVisitor<ASTType?>(null) {
         node.argNames.forEach {
             arg ->
             emit("${arg}, ")
+            var type = node.type.argTypes[i]
+            /* resolve structure types */
+            if(type is ASTStructType) {
+                val fullType = structTypeTable.findSymbol(type.typeName)
+                if(fullType === null) {
+                    compilerError("no such structure type '${type.typeName}'", node.loc)
+                }
+                type = fullType.type
+            }
             /* add argument entry to symbol table */
-            getSymbolTable().addSymbol(arg, Symbol(node.type.argTypes[i]))
+            getSymbolTable().addSymbol(arg, Symbol(type))
             i++
         }
         emit(") => {\n")
@@ -244,14 +281,17 @@ class JSBackend(val emit: Emitter): ASTBaseVisitor<ASTType?>(null) {
             } else if(func == ".") {
                 emit("(")
                 if(node.args.size != 2) compilerError("field access must be invoked with two parameters", node.loc)
+
                 val type = visitASTNode(node.args[0])
                 if(type == null) compilerError(". operator can only be applied to an expression", node.loc)
                 if(node.args[1] !is ASTVarExpr) compilerError("field name must be a name, not an expression", node.loc)
+                /* check that field exists on type */
                 if(!type.hasField((node.args[1] as ASTVarExpr).name)) {
                     compilerError("type '${type}' has no field '${(node.args[1] as ASTVarExpr).name}", node.loc)
                 }
                 emit(").${(node.args[1] as ASTVarExpr).name}")
                 return type.fieldType((node.args[1] as ASTVarExpr).name)
+
             } else if(func == "[]") {
                 emit("(")
                 if(node.args.size != 2) compilerError("array index access must be invoked with two parameters", node.loc)

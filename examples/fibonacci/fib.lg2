@@ -1,0 +1,21 @@
+// Fibonacci Example Program
+// Author: Edward Wawrzynek
+
+// return the n-th fibonacci number
+int fib (int n) {
+  int a = 0;
+  int b = 1;
+  for (int i = 0; i < n; i += 1) {
+    int tmp = b;
+    b = a + b;
+    a = tmp;
+  }
+  return a;
+}
+
+// calculate the first 100 fib numbers
+int main (string[] args) {
+  for (int n = 0; n < 100; n += 1) {
+    printnum(fib(n));
+  }
+}

@@ -1,0 +1,84 @@
+# N-Queens problem solver example program
+# Author: Edward Wawrzynek
+
+fn makeIntArray (size: int, val: int) -> []int {
+  res: []int = []int []
+  range i: int in 0..size {
+    res.push(val)
+  }
+  return res
+}
+
+struct board {
+  size: int
+  yloc: []int
+}
+
+# make a blank board
+fn makeBoard (n: int) -> struct board =>
+  return struct board {size: n, yloc: makeIntArray(n, -1)}
+
+# print out a board
+fn printBoard (board: struct board) -> int {
+  range y: int in 0..board.size {
+    line: string = ""
+    range x: int in 0..board.size {
+      if board.yloc[x] == y {
+        line += " Q"
+      } else {
+        line += " ."
+      }
+    }
+    print(line)
+  }
+  l: string = ""
+  range n: int in 0..board.size {
+    l += "--"
+  }
+  print(l)
+  return 0
+}
+
+# check that a board is valid
+fn checkBoard (b: struct board) -> bool {
+  # check that no row has two pieces
+  rowsFilled: []int = makeIntArray(b.size, 0)
+  range x: int in 0..b.size {
+    if b.yloc[x] != -1 {
+      return false if rowsFilled[b.yloc[x]] == 1
+      rowsFilled[b.yloc[x]] = 1
+    }
+  }
+  # check diagonals
+  # left-down diagonals
+  diag1: []int = makeIntArray(b.size * 2 - 1, 0)
+  # right-down diagonals
+  diag2: []int = makeIntArray(b.size * 2 - 1, 0)
+  range n: int in 0..b.size {
+    if b.yloc[n] != -1 {
+      return false if diag1[n + b.yloc[n]] == 1
+      return false if diag2[n + b.size - 1 - b.yloc[n]] == 1
+      diag1[n + b.yloc[n]] = 1
+      diag2[n + b.size - 1 - b.yloc[n]] = 1
+    }
+  }
+  return true
+}
+
+# solve a board by brute force
+fn solve (b: struct board, x: int) -> int =>
+  if x == b.size {
+    printBoard(b)
+    return 1
+  } else {
+    range y: int in 0..b.size {
+      b.yloc[x] = y
+      solve(b, x + 1) if checkBoard(b)
+      b.yloc[x] = -1
+    }
+  }
+
+fn main (args: []string) -> int {
+  b: struct board = makeBoard(8)
+  solve(b, 0)
+}
