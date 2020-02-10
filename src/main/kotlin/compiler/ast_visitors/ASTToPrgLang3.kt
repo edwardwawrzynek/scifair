@@ -227,7 +227,6 @@ class ASTToPrgLang3(val emit: Emitter): ASTBaseVisitor<Unit>(Unit) {
     override fun visitASTConditional(node: ASTConditional) {
         /* check for unless */
         val isUnless = node.conditions[0] is ASTFuncApplication && (node.conditions[0] as ASTFuncApplication).expr is ASTVarExpr && ((node.conditions[0] as ASTFuncApplication).expr as ASTVarExpr).name == "!"
-
         /* check for switch statement */
         var isSwitch = true
         var switchNumberEqChecks = 0

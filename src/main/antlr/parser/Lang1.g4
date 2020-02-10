@@ -1,131 +1,131 @@
 grammar Lang1;
 
 @header {
-	package parser;
+  package parser;
 }
 
 program
-	: expr* EOF
-	;
-
-funcName
-	: 	ID
-	| 	'+'
-	| 	'-'
-	|	'*'
-	| 	'/'
-	|	'%'
-	|	'>>'
-	|	'<<'
-	|	'>='
-	|	'<='
-	|	'>'
-	|	'<'
-	|	'=='
-	|	'!='
-	|	'&&'
-	|	'||'
-	|	'|'
-	|	'&'
-	|	'^'
-	|	'~'
-	|	'!'
-	|	'.'
-	|	'++'
-	|	'--'
-	|	'[]'
-	;
+  : expr* EOF
+  ;
 
 funcCallExpr
-	:	'(' func=expr (args=expr)* ')'
-	;
+  :	'(' func=expr (args=expr)* ')'
+  ;
 
 structExpr
-	:	'(' 'struct' name=ID '(' ( '(' field=ID value=expr ')' )* ')' ')'
-	;
+  :	'(' 'struct' name=ID '(' ( '(' field=ID value=expr ')' )* ')' ')'
+  ;
 
 arrayExpr
-	: '(' 'array' type=typeExpr '(' (value=expr)* ')' ')'
-	;
+  : '(' 'array' type=typeExpr '(' (value=expr)* ')' ')'
+  ;
 
 literalExpr
-	:	structExpr		#structLiteral
-	|	arrayExpr		#arrayLiteral
-	| 	value=STR		#strLiteral
-	|	value=NUM		#numLiteral
-	| 	value=NULL		#nullLiteral
-	|	value=FLOAT		#floatLiteral
-	|	value=BOOL		#booleanLiteral
-	;
+  :	structExpr		#structLiteral
+  |	arrayExpr		  #arrayLiteral
+  | value=STR		  #strLiteral
+  |	value=NUM		  #numLiteral
+  | value=NULL		#nullLiteral
+  |	value=FLOAT		#floatLiteral
+  |	value=BOOL		#booleanLiteral
+  ;
 
 varDecl
-	:	'(' name=ID type=typeExpr ')'
-	;
+  : '(' name=ID type=typeExpr ')'
+  ;
 
 structDeclExpr
-	: 	'(' 'defstruct' name=ID '(' (fields=varDecl)* ')' ')'
-	;
+  : '(' 'defstruct' name=ID '(' (fields=varDecl)* ')' ')'
+  ;
 
 varDeclExpr
-	:	'(' 'setq' var=varDecl value=expr ')'
-	;
+  :	'(' 'setq' var=varDecl value=expr ')'
+  ;
 
 lambdaExpr
-	: 	'(' 'lambda' ret_type=typeExpr '(' (args=varDecl)* ')' (body=expr)* ')'
-	;
+  : '(' 'lambda' ret_type=typeExpr '(' (args=varDecl)* ')' (body=expr)* ')'
+  ;
 
 funcDeclExpr
-	: 	'(' 'defun' name=ID ret_type=typeExpr '(' (args=varDecl)* ')' (body=expr)* ')'
-	;
+  : '(' 'defun' name=ID ret_type=typeExpr '(' (args=varDecl)* ')' (body=expr)* ')'
+  ;
 
 forExpr
-	:	'(' 'for' initial=expr cond=expr end=expr '(' (body=expr)* ')' ')'
-	;
+  :	'(' 'for' initial=expr cond=expr end=expr '(' (body=expr)* ')' ')'
+  ;
 
 typeExpr
-	:	'(' 'struct' name=ID ')' 		#structTypeExpr
-	|	'(' 'array' type=typeExpr ')'	#arrayTypeExpr
-	|	type=ID							#plainType
-	;
+  :	'(' 'struct' name=ID ')' 		#structTypeExpr
+  |	'(' 'array' type=typeExpr ')'	#arrayTypeExpr
+  |	type=ID							#plainType
+  ;
 
 varExpr
-	:	funcName
-	;
+  :	funcName
+  ;
 
 condEntry
-	: 	'(' cond=expr '(' (body=expr)* ')' ')'
-	;
+  : '(' cond=expr '(' (body=expr)* ')' ')'
+  ;
 
 condExpr
-	:	'(' 'cond' (condEntry)* ')'
-	;
+  :	'(' 'cond' (condEntry)* ')'
+  ;
 
 assignExpr
-	:	'(' '=' left=expr right=expr ')'
-	;
+  :	'(' '=' left=expr right=expr ')'
+  ;
 
 expr
-	: 	funcDeclExpr
-	| 	lambdaExpr
-	|	varDeclExpr
-	|	forExpr
-	|	literalExpr
-	| 	structDeclExpr
-	|	condExpr
-	|	assignExpr
-	|	funcCallExpr
-	|	varExpr
-	|	lineComment
-	|	blankLine
-	;
+  : funcDeclExpr
+  | lambdaExpr
+  |	varDeclExpr
+  |	forExpr
+  |	literalExpr
+  | structDeclExpr
+  |	condExpr
+  |	assignExpr
+  |	funcCallExpr
+  |	varExpr
+  |	lineComment
+  |	blankLine
+  ;
+
+funcName
+  : ID
+  | '+'
+  | '-'
+  | '*'
+  | '/'
+  | '%'
+  | '>>'
+  | '<<'
+  |	'>='
+  |	'<='
+  |	'>'
+  |	'<'
+  |	'=='
+  |	'!='
+  |	'&&'
+  |	'||'
+  |	'|'
+  |	'&'
+  |	'^'
+  |	'~'
+  |	'!'
+  |	'.'
+  |	'++'
+  |	'--'
+  |	'[]'
+  ;
 
 lineComment
-	:	LINE_COMMENT
-	;
+  :	LINE_COMMENT
+  ;
 
 blankLine
-	:	BLANK_LINE
-	;
+  :	BLANK_LINE
+  ;
 
 BOOL: 	'true' | 'false';
 NULL: 	'null';

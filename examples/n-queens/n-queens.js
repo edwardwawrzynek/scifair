@@ -79,7 +79,7 @@ let checkBoard = ((b, ) => {
 let rowsFilled = makeIntArray((b).size, 0, );
 for (let x = 0; (x) < ((b).size); x = (x) + (1)) {
 if ((((b).yloc)[x]) != (-1)) {
-if (((rowsFilled)[((b).yloc)[x]]) == (1)) {
+if (!(((rowsFilled)[((b).yloc)[x]]) != (1))) {
 return false;
 };
 (rowsFilled)[((b).yloc)[x]] = 1;

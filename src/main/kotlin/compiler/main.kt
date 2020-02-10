@@ -205,16 +205,5 @@ object Main {
 
     @JvmStatic fun main(args: Array<String>) {
         parseArgs(args)
-        /*val ast = lang1toAST("lang1.txt")
-        astToLang2(ast, "lang2.out")
-        val ast2 = lang2toAST("lang2.out")
-        astToLang3(ast2, "lang3.out")
-        val ast3 = lang3toAST("lang3.out")
-        astToLang1(ast3, "lang1.out")
-
-        val emit = FileEmitter(FileWriter("out.js"))
-        val backend = JSBackend(emit)
-        backend.visitASTNode(ast3)
-        emit.close()*/
     }
 }

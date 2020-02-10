@@ -1,124 +1,124 @@
 grammar Lang2;
 
 @header {
-	package parser;
+  package parser;
 }
 
 program
-	: statement* EOF
-	;
+  : statement* EOF
+  ;
 
 expr
-    :   '(' expr ')'                                #parenExpr
-    |   varName=expr '.' sub=expr                   #dotExpr
+  : '(' expr ')'                                    #parenExpr
+  | varName=expr '.' sub=expr                       #dotExpr
 
-    |   varName=expr '[' sub=expr ']'               #arraySubExpr
-    |   varName=expr op=('++'|'--')                 #postfixExpr
-    |	func=expr '(' (args=expr ',')* (args=expr)? ')'	#funcExpr
+  | varName=expr '[' sub=expr ']'                   #arraySubExpr
+  | varName=expr op=('++'|'--')                     #postfixExpr
+  |	func=expr '(' (args=expr ',')* (args=expr)? ')'	#funcExpr
 
-    |   op=('!'|'~') varName=expr                   #prefixExpr
+  | op=('!'|'~') varName=expr                       #prefixExpr
 
-    |   left=expr op=('*'|'/'|'%') right=expr       #infixExpr
-    |   left=expr op=('+'|'-') right=expr           #infixExpr
+  | left=expr op=('*'|'/'|'%') right=expr           #infixExpr
+  | left=expr op=('+'|'-') right=expr               #infixExpr
+  | left=expr op=('<<'|'>>') right=expr             #infixExpr
+  | left=expr op=('<'|'<='|'>'|'>=') right=expr     #infixExpr
+  | left=expr op=('=='|'!=') right=expr             #infixExpr
 
-    |   left=expr op=('<<'|'>>') right=expr         #infixExpr
+  | left=expr op='&' right=expr                     #infixExpr
+  | left=expr op='|' right=expr                     #infixExpr
+  | left=expr op='^' right=expr                     #infixExpr
 
-    |   left=expr op=('<'|'<='|'>'|'>=') right=expr #infixExpr
+  | left=expr op='&&' right=expr                    #infixExpr
+  | left=expr op='||' right=expr                    #infixExpr
 
-    |   left=expr op=('=='|'!=') right=expr         #infixExpr
+  | left=expr
+      op=('='|'+='|'-='|'*='|'/='|'%='|'<<='|'>>='|'&='|'^='|'|=') 
+      right=expr                                    #assignmentExpr
 
-    |   left=expr op='&' right=expr                 #infixExpr
-    |   left=expr op='|' right=expr                 #infixExpr
-    |   left=expr op='^' right=expr                 #infixExpr
-
-    |   left=expr op='&&' right=expr                #infixExpr
-    |   left=expr op='||' right=expr                #infixExpr
-
-    |   left=expr op=('='|'+='|'-='|'*='|'/='|'%='|'<<='|'>>='|'&='|'^='|'|=') right=expr   #assignmentExpr
-	|	literalExpr									#litExpr
-	| 	lambdaExpr									#closureExpr
-	|	ID											#varExpr
-	;
+  |	literalExpr									                    #litExpr
+  | lambdaExpr									                    #closureExpr
+  |	ID											                        #varExpr
+  ;
 
 structExpr
-	:	'(' 'struct' name=ID ')' '{' ( '.' field=ID '=' value=expr ',' )* ( '.' field=ID '=' value=expr )? '}'
-	;
+  :	'(' 'struct' name=ID ')' '{' ( '.' field=ID '=' value=expr ',' )* ( '.' field=ID '=' value=expr )? '}'
+  ;
 
 arrayExpr
-	: '(' type=typeExpr '[' ']' ')' '{' (value=expr ',')* (value=expr)? '}'
-	;
+  : '(' type=typeExpr '[' ']' ')' '{' (value=expr ',')* (value=expr)? '}'
+  ;
 
 literalExpr
-	:	structExpr		#structLiteral
-	|	arrayExpr		#arrayLiteral
-	| 	value=STR		#strLiteral
-	|	value=NUM		#numLiteral
-	| 	value=NULL		#nullLiteral
-	|	value=FLOAT		#floatLiteral
-	|	value=BOOL		#booleanLiteral
-	;
+  :	structExpr		#structLiteral
+  |	arrayExpr		  #arrayLiteral
+  | value=STR		  #strLiteral
+  |	value=NUM		  #numLiteral
+  | value=NULL		#nullLiteral
+  |	value=FLOAT		#floatLiteral
+  |	value=BOOL		#booleanLiteral
+  ;
 
 varDecl
-	:	 type=typeExpr name=ID
-	;
+  :	 type=typeExpr name=ID
+  ;
 
 structDeclExpr
-	: 	'struct' name=ID '{' (fields=varDecl ';' )* '}'
-	;
+  : 'struct' name=ID '{' (fields=varDecl ';' )* '}'
+  ;
 
 varDeclExpr
-	:	var=varDecl '=' value=expr
-	;
+  :	var=varDecl '=' value=expr
+  ;
 
 lambdaExpr
-	: 	ret_type=typeExpr '(' (args=varDecl ',')* (args=varDecl)? ')' '{' (body=statement)* '}'
-	;
+  : ret_type=typeExpr '(' (args=varDecl ',')* (args=varDecl)? ')' '{' (body=statement)* '}'
+  ;
 
 funcDeclExpr
-	: 	ret_type=typeExpr name=ID '(' (args=varDecl ',')* (args=varDecl)? ')' '{' (body=statement)* '}'
-	;
+  : ret_type=typeExpr name=ID '(' (args=varDecl ',')* (args=varDecl)? ')' '{' (body=statement)* '}'
+  ;
 
 forExpr
-	:	'for' '(' initial=statement cond=expr ';' end=expr ')' '{' (body=statement)* '}'
-	;
+  :	'for' '(' initial=statement cond=expr ';' end=expr ')' '{' (body=statement)* '}'
+  ;
 
 typeExpr
-	:	'struct' name=ID 				#structTypeExpr
-	|	type=typeExpr '[' ']'			#arrayTypeExpr
-	|	type=ID							#plainType
-	;
+  :	'struct' name=ID 				#structTypeExpr
+  |	type=typeExpr '[' ']'		#arrayTypeExpr
+  |	type=ID							    #plainType
+  ;
 
 ifStatementBody
-	:	statement+
-	;
+  :	statement+
+  ;
 
 ifStatement
-	:	'if' '(' cond=expr ')' '{' (body=ifStatementBody) '}' ('else' 'if' '(' cond=expr ')' '{' (body=ifStatementBody) '}')* ('else' '{' (body=ifStatementBody) '}')?
-	;
+  :	'if' '(' cond=expr ')' '{' (body=ifStatementBody) '}' ('else' 'if' '(' cond=expr ')' '{' (body=ifStatementBody) '}')* ('else' '{' (body=ifStatementBody) '}')?
+  ;
 
 returnStatement
-	:	'return' value=expr
-	;
+  :	'return' value=expr
+  ;
 
 statement
-	: 	funcDeclExpr
-	|	varDeclExpr ';'
-	|	forExpr
-	| 	structDeclExpr ';'
-	| 	ifStatement
-	|	returnStatement ';'
-	|	expr ';'
-	| 	lineComment
-	| 	blankLine
-	;
+  : funcDeclExpr
+  | varDeclExpr ';'
+  | forExpr
+  | structDeclExpr ';'
+  | ifStatement
+  |	returnStatement ';'
+  |	expr ';'
+  | lineComment
+  | blankLine
+  ;
 
 lineComment
-	:	LINE_COMMENT
-	;
+  :	LINE_COMMENT
+  ;
 
 blankLine
-	:	BLANK_LINE
-	;
+  :	BLANK_LINE
+  ;
 
 BOOL: 	'true' | 'false';
 NULL: 	'null';

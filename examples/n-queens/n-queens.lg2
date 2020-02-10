@@ -46,7 +46,7 @@ bool checkBoard (struct board b) {
   int[] rowsFilled = makeIntArray(b.size, 0);
   for (int x = 0; x < b.size; x += 1) {
     if (b.yloc[x] != -1) {
-      if (rowsFilled[b.yloc[x]] == 1) {
+      if (!(rowsFilled[b.yloc[x]] != 1)) {
         return false;
       }
       rowsFilled[b.yloc[x]] = 1;

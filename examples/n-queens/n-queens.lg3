@@ -45,7 +45,7 @@ fn checkBoard (b: struct board) -> bool {
   rowsFilled: []int = makeIntArray(b.size, 0)
   range x: int in 0..b.size {
     if b.yloc[x] != -1 {
-      return false if rowsFilled[b.yloc[x]] == 1
+      return false unless rowsFilled[b.yloc[x]] != 1
       rowsFilled[b.yloc[x]] = 1
     }
   }
