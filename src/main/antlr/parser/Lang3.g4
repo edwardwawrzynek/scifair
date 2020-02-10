@@ -5,14 +5,6 @@ grammar Lang3;
 }
 
 @parser::members {
-    /**
-     * Based on code from antlr4 golang grammar https://github.com/antlr/grammars-v4
-     * Returns true iff on the current index of the parser's
-     * token stream a token exists on the HIDDEN channel which
-     * either is a line terminator, or is a multi line comment that
-     * contains a line terminator.
-         */
-
     private boolean lineTerminatorAhead() {
         // Get the token ahead of the current index.
         int possibleIndexEosToken = this.getCurrentToken().getTokenIndex() - 1;
