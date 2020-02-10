@@ -220,6 +220,34 @@ class Lang3Test {
                 "\t\tprint(\"var is not 1 or 2\")\n" +
                 "\t}\n" +
                 "}\n"
+            ),
+            Pair(
+                ASTProgram(noLoc,
+                    listOf(
+                        ASTForLoop(noLoc,
+                            ASTVarDecl(noLoc, "i", ASTIntType(noLoc), ASTIntLiteral(noLoc, 0)),
+                            ASTFuncApplication(noLoc,
+                                ASTVarExpr(noLoc, "<"),
+                                listOf(
+                                    ASTVarExpr(noLoc, "i"),
+                                    ASTIntLiteral(noLoc, 10)
+                                )
+                            ),
+                            ASTAssignment(noLoc,
+                                ASTVarExpr(noLoc, "i"),
+                                ASTFuncApplication(noLoc,
+                                    ASTVarExpr(noLoc, "+"),
+                                    listOf(
+                                        ASTVarExpr(noLoc, "i"),
+                                        ASTIntLiteral(noLoc, 1)
+                                    )
+                                )
+                            ),
+                            listOf()
+                        )
+                    )
+                ),
+                "range i: int in 0..10 {\n}\n"
             )
         )
     }
