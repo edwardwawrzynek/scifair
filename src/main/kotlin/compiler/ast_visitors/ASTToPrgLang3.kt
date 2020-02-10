@@ -82,7 +82,7 @@ class ASTToPrgLang3(val emit: Emitter): ASTBaseVisitor<Unit>(Unit) {
         emit(") -> ")
         visitASTType(func.type.returnType)
         val isInlineBody = func.body.size == 1
-        if(isInlineBody) emit(" => ") else emit(" {")
+        if(isInlineBody) emit(" =>\n") else emit(" {")
         indent++
         for(expr in func.body) {
             if(!isInlineBody) emit("\n")
@@ -333,19 +333,49 @@ class ASTToPrgLang3(val emit: Emitter): ASTBaseVisitor<Unit>(Unit) {
     }
 
     override fun visitASTForLoop(node: ASTForLoop) {
-        emit("for ")
-        visitASTNode(node.initial)
-        emit(", ")
-        visitASTNode(node.condition)
-        emit(", ")
-        visitASTNode(node.end)
-        emit(" {")
-        indent++
-        for(expr in node.body) {
-            emit("\n")
-            visitASTNode(expr)
+        /* check if the loop should be emitted as a range - it has to be of the form:
+         * for var: type = low, var < high, var = var + 1
+         */
+        if(
+            node.initial is ASTVarDecl &&
+            ((node.condition as? ASTFuncApplication)?.expr as? ASTVarExpr)?.name == "<" &&
+            (node.condition.args[0] as? ASTVarExpr)?.name == node.initial.name &&
+            node.end is ASTAssignment &&
+            (node.end.left as? ASTVarExpr)?.name == node.initial.name &&
+            node.end.right is ASTFuncApplication &&
+            (node.end.right.expr as? ASTVarExpr)?.name == "+" &&
+            (node.end.right.args[0] as? ASTVarExpr)?.name == node.initial.name &&
+            (node.end.right.args[1] as? ASTIntLiteral)?.value == 1.toLong()
+        ) {
+            emit("range ${node.initial.name}: ")
+            visitASTType(node.initial.type!!)
+            emit(" in ")
+            visitASTNode(node.initial.initialValue)
+            emit("..")
+            visitASTNode(node.condition.args[1])
+            emit(" {")
+            indent++
+            for (expr in node.body) {
+                emit("\n")
+                visitASTNode(expr)
+            }
+            indent--
+            emit("\n}")
+        } else {
+            emit("for ")
+            visitASTNode(node.initial)
+            emit(", ")
+            visitASTNode(node.condition)
+            emit(", ")
+            visitASTNode(node.end)
+            emit(" {")
+            indent++
+            for (expr in node.body) {
+                emit("\n")
+                visitASTNode(expr)
+            }
+            indent--
+            emit("\n}")
         }
-        indent--
-        emit("\n}")
     }
 }

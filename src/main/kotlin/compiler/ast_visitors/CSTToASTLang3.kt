@@ -33,6 +33,7 @@ class CSTToASTLang3: Lang3BaseVisitor<ASTNode>() {
         is Lang3Parser.StatementReturnStatementContext -> visitReturnStatement(ctx.returnStatement())
         is Lang3Parser.StatementExprStatementContext -> visitExpr(ctx.expr())
         is Lang3Parser.StatementLineCommentContext -> visitLineComment(ctx.lineComment())
+        is Lang3Parser.StatementRangeStatementContext -> visitRangeExpr(ctx.rangeExpr())
         else -> compilerError("no such statement class ${ctx.javaClass}", ASTLoc(ctx.start))
     }
 
@@ -46,6 +47,7 @@ class CSTToASTLang3: Lang3BaseVisitor<ASTNode>() {
         is Lang3Parser.InlineIfSwitchStatementContext -> visitSwitchStatement(ctx.switchStatement())
         is Lang3Parser.InlineIfReturnStatementContext -> visitReturnStatement(ctx.returnStatement())
         is Lang3Parser.InlineIfExprStatementContext -> visitExpr(ctx.expr())
+        is Lang3Parser.InlineRangeExprStatementContext -> visitRangeExpr(ctx.rangeExpr())
         else -> compilerError("no such statement class ${ctx.javaClass}", ASTLoc(ctx.start))
     }
 
@@ -150,6 +152,36 @@ class CSTToASTLang3: Lang3BaseVisitor<ASTNode>() {
                 visitExpr(ctx.cond),
                 visitExpr(ctx.end),
                 ctx.statement().map {b -> visitStatement(b)}
+        )
+    }
+
+    override fun visitRangeExpr(ctx: Lang3Parser.RangeExprContext): ASTNode {
+        /* generate for loop from range form
+        * for loop initial setups variable, condition is < end, end is var++ */
+        return ASTForLoop(
+            ASTLoc(ctx.start),
+            ASTVarDecl(
+                ASTLoc(ctx.start),
+                ctx.varDecl().name.text,
+                visitTypeExpr(ctx.varDecl().typeExpr()),
+                visitExpr(ctx.low)
+            ),
+            ASTFuncApplication(
+                ASTLoc(ctx.start),
+                ASTVarExpr(ASTLoc(ctx.start), "<"),
+                listOf(ASTVarExpr(ASTLoc(ctx.start), ctx.varDecl().name.text), visitExpr(ctx.high))
+            ),
+            ASTAssignment(ASTLoc(ctx.start),
+                ASTVarExpr(ASTLoc(ctx.start), ctx.varDecl().name.text),
+                ASTFuncApplication(ASTLoc(ctx.start),
+                    ASTVarExpr(ASTLoc(ctx.start), "+"),
+                    listOf(
+                        ASTVarExpr(ASTLoc(ctx.start), ctx.varDecl().name.text),
+                        ASTIntLiteral(ASTLoc(ctx.start), 1)
+                    )
+                )
+            ),
+            ctx.statement().map { s -> visitStatement(s) }
         )
     }
 

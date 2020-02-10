@@ -121,6 +121,10 @@ forExpr
 	:	'for'  initial=forInitialExpr ',' cond=expr ',' end=expr '{' (body=statement)* '}'
 	;
 
+rangeExpr
+    :   'range' iterator=varDecl 'in' low=expr '..' high=expr '{' (body=statement)* '}'
+    ;
+
 typeExpr
 	:	'struct' name=ID 				#structTypeExpr
 	|	'[' ']' type=typeExpr			#arrayTypeExpr
@@ -160,6 +164,7 @@ inlineIfBodyStatement
 	: 	funcDeclExpr		#inlineIfFuncDeclStatement
 	|	varDeclExpr			#inlineIfVarDeclStatement
 	|	forExpr				#inlineIfForStatement
+	|   rangeExpr           #inlineRangeExprStatement
 	| 	structDeclExpr		#inlineIfStructDeclStatement
 	| 	ifStatement			#inlineIfIfStatement
 	|	switchStatement		#inlineIfSwitchStatement
@@ -172,6 +177,7 @@ statement
 	: 	funcDeclExpr				#statementFuncDeclStatement
 	|	varDeclExpr eos				#statementVarDeclStatement
 	|	forExpr						#statementForStatement
+	|   rangeExpr                   #statementRangeStatement
 	| 	structDeclExpr eos			#statementStructDeclStatement
 	| 	ifStatement					#statementIfStatement
 	| 	inlineIfStatement eos		#statementInlineIfStatement

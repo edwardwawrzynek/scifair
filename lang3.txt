@@ -1,14 +1,6 @@
 # This is a comment
-book: string = "CalCulus"
 fn foo(n: int, kittens: bool) -> []bool {
-	res: []bool = []bool []
-	for i: int = 0, i < n, i++ {
-		# res.append(kittens)
-		i = 0
-			i = (
-				1 + 2
-			)
+	range i: int in 0..5 {
+        printnum(i)
 	}
-    print("a hello")
-	return res
 }

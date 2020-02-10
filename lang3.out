@@ -1,51 +1,8 @@
-# A language using s-expressions
-# not lisp (very much incomptabile)
-
-# user defined types
-struct person {
-  name: string
-  age: int
-  parent: struct person
-}
-# user defined type literals
-struct person {name: "hello", age: 0, parent: null}
-var_array: []int = []int [0, 1, 2, 3]
-
-# Variable definition
-var: int = 1
-
-# Assignment
-var += 1
-
-# Function calls
-
-var + var
-func(var, var, var)
-
-# Conditionals
-switch var {
-  1 -> {
-    print("var is 1")
-    a += 1
+# This is a comment
+fn foo (n: int, kittens: bool) -> []bool =>
+  range i: int in 0..5 {
+    printnum(i)
   }
-  2 -> {
-    print("var is 2")
-  }
-  else -> {
-    print("var is not 1 or 2")
-  }
-}
 
-# Functions expressions
-(a: int, b: int) -> int => a + b
-
-# Named functions (no special syntax)
-fn sum (a: int, b: int) -> int => a + b
-
-fn getName (person: struct person) -> string => return person.name
-
-# Loops
-for i: int = 0, i < 5, i += 1 {
-  print(i)
-  print(i + 1)
-}
+fn sum (a: int, b: int) -> int =>
+  return a + b
