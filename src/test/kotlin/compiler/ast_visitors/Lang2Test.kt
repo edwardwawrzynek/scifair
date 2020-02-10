@@ -21,7 +21,6 @@ class Lang2Test {
     companion object {
         val emit = TestEmitter()
         val asttolang = ASTToPrgLang2(emit)
-        val langtoast = null
         /* give all test ast nodes blank source locations */
         val noLoc = ASTNodeLocation(0, 0, "")
 
